@@ -6,14 +6,18 @@ export type DbProduct = {
   title: string
   price: number
   currency: string
-  category_id: string | null
+  category_id?: string | null
+  compare_at_price?: number | null
+  fabric?: string | null
+  is_sale?: boolean
+  description?: string | null
 }
 
 export async function getProductByTitleLike(titleLike: string) {
   const supabase = createClient()
   const { data: product } = await supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description")
     .ilike("title", `%${titleLike}%`)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -46,7 +50,7 @@ export async function getProductsByCategorySlug(
 
   let query = supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency")
     .eq("category_id", cat.id)
     .order("created_at", { ascending: false })
 
@@ -89,14 +93,14 @@ export async function getProductBySlug(slug: string) {
   const supabase = createClient()
   let { data: product } = await supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description")
     .eq("slug", slug)
     .maybeSingle()
   if (!product) {
     // Fallback: try ilike match on slug
     const { data: approx } = await supabase
       .from("products")
-      .select("id, slug, title, price, currency")
+      .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description")
       .ilike("slug", `%${slug}%`)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -118,7 +122,7 @@ export async function getProductById(id: string) {
   const supabase = createClient()
   const { data: product } = await supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description")
     .eq("id", id)
     .maybeSingle()
   if (!product) return null
@@ -154,7 +158,7 @@ export async function getNewProducts(opts: { min?: number; max?: number } = {}) 
   const supabase = createClient()
   let q = supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency")
     .eq("is_new", true)
     .order("created_at", { ascending: false })
   const minOk = typeof opts.min === "number" && Number.isFinite(opts.min)
@@ -170,7 +174,7 @@ export async function getSaleProducts(opts: { min?: number; max?: number } = {})
   const supabase = createClient()
   let q = supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency")
     .eq("is_sale", true)
     .order("created_at", { ascending: false })
   const minOk = typeof opts.min === "number" && Number.isFinite(opts.min)
@@ -186,7 +190,7 @@ export async function getLatestProducts(limit = 4) {
   const supabase = createClient()
   const { data } = await supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency")
     .order("created_at", { ascending: false })
     .limit(limit)
   if (!data) return []
@@ -203,7 +207,7 @@ export async function getCategoryLead(slug: string) {
   if (!cat) return null
   const { data } = await supabase
     .from("products")
-    .select("id, slug, title, price, currency")
+    .select("id, slug, title, price, compare_at_price, currency")
     .eq("category_id", cat.id)
     .order("created_at", { ascending: false })
     .limit(1)

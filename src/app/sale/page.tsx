@@ -25,7 +25,12 @@ export default async function SalePage({
             )}
             <div className="p-3">
               <p className="text-sm font-medium">{p.title}</p>
-              <p className="text-sm text-muted-foreground">{p.currency} {p.price.toLocaleString()}</p>
+              <p className="text-sm">
+                {p.compare_at_price ? (
+                  <span className="mr-2 text-muted-foreground line-through">{p.currency} {Number(p.compare_at_price).toLocaleString()}</span>
+                ) : null}
+                <span>{p.currency} {Number(p.price).toLocaleString()}</span>
+              </p>
             </div>
           </Link>
         ))}

@@ -23,7 +23,17 @@ export default async function ProductPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
-      <PdpClient id={product.id} title={product.title} price={Number(product.price)} images={product.images} />
+      <PdpClient
+        id={product.id}
+        title={product.title}
+        price={Number(product.price)}
+        compareAtPrice={product.compare_at_price ? Number(product.compare_at_price) : undefined}
+        currency={product.currency as any}
+        isSale={Boolean((product as any).is_sale)}
+        fabric={(product as any).fabric}
+        description={(product as any).description}
+        images={product.images}
+      />
     </div>
   )
 }

@@ -118,6 +118,19 @@ create table if not exists shipments (
 );
 create index if not exists shipments_order_idx on shipments(order_id);
 
+-- Store order address/contact fields per order
+create table if not exists order_addresses (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references orders(id) on delete cascade,
+  name text,
+  phone text,
+  email text,
+  city text,
+  line1 text,
+  created_at timestamptz not null default now()
+);
+create index if not exists order_addresses_order_idx on order_addresses(order_id);
+
 create table if not exists reviews (
   id uuid primary key default gen_random_uuid(),
   product_id uuid not null references products(id) on delete cascade,

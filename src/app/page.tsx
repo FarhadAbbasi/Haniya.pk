@@ -4,7 +4,7 @@ import { Truck, Phone, Shield } from "lucide-react";
 import { getLatestProducts } from "@/lib/data/products";
 import { getCategoryLead } from "@/lib/data/products";
 
-function ProductCard({ href, title, price, image }: { href: string; title: string; price: string; image?: string }) {
+function ProductCard({ href, title, price, compareAtPrice, image }: { href: string; title: string; price: string; compareAtPrice?: string; image?: string }) {
   return (
     <Link href={href} className="group overflow-hidden rounded-lg border bg-white">
       {image ? (
@@ -14,7 +14,12 @@ function ProductCard({ href, title, price, image }: { href: string; title: strin
       )}
       <div className="p-3">
         <p className="text-sm font-medium">{title}</p>
-        <p className="text-sm text-muted-foreground">{price}</p>
+        <p className="text-sm">
+          {compareAtPrice ? (
+            <span className="mr-2 text-muted-foreground line-through">{compareAtPrice}</span>
+          ) : null}
+          <span>{price}</span>
+        </p>
       </div>
     </Link>
   );
@@ -73,16 +78,17 @@ export default async function Home() {
           style={{ backgroundImage: "url('/Hero.jpg'), url('/hero.jpg')" }}
         />
         <div className="mx-auto flex min-h-[35vh]  w-full max-w-7xl items-center px-4 py-12 md:min-h-[70vh] md:py-16">
-          <div className="max-w-2xl space-y-4 md:space-y-5">
+          <div className="max-w-2xl space-y-5 md:space-y-5">
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/80">New Season</p>
-            <h1 className="text-balance text-2xl font-semibold leading-tight tracking-tight md:text-5xl">
+            <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
               Luxury Lawn & Winter Collections
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
             </h1>
-            <p className="max-w-prose text-sm md:text-base text-foreground/80">
+            <p className="max-w-prose hidden md:block text-sm md:text-base text-foreground/80">
               Timeless designs with modern silhouettes. Crafted in premium fabrics for comfort in every season.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg">
+              <Button asChild size="lg" variant="default">
                 <Link href="/new">Shop New Arrivals</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
@@ -111,6 +117,7 @@ export default async function Home() {
               href={`/p/${p.id}`}
               title={p.title}
               price={`${p.currency} ${Number(p.price).toLocaleString()}`}
+              compareAtPrice={p.compare_at_price ? `${p.currency} ${Number(p.compare_at_price).toLocaleString()}` : undefined}
               image={p.image}
             />
           ))}

@@ -9,12 +9,15 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { getTcsRateQuote } from "@/lib/shipping/tcs"
 import { initEasypaisaPayment } from "@/lib/payments/easypaisa"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export default function CheckoutPage() {
   const cart = useCart()
+  const router = useRouter()
   const [address, setAddress] = React.useState({
     name: "",
     phone: "",
+    email: "",
     city: "Karachi",
     line1: "",
   })
@@ -44,8 +47,28 @@ export default function CheckoutPage() {
     }
 
     if (payment === "cod") {
-      toast.success("Order placed with Cash on Delivery")
-      // TODO: Save order in Supabase
+      try {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: cart.items.map((i) => ({ id: i.id, qty: i.qty, price: i.price })),
+            address,
+            shipping,
+            currency: "PKR",
+          }),
+        })
+        const json = await res.json()
+        if (!res.ok) {
+          throw new Error(json?.error || "Could not place order")
+        }
+        const orderId = json.id
+        toast.success("Order placed with Cash on Delivery")
+        cart.clear()
+        router.push(`/order/success?id=${orderId}`)
+      } catch (e: any) {
+        toast.error(e?.message || "Could not place order")
+      }
     } else {
       try {
         const res = await initEasypaisaPayment({
@@ -75,6 +98,10 @@ export default function CheckoutPage() {
             <div className="grid gap-1.5">
               <Label htmlFor="phone">Phone</Label>
               <Input id="phone" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" value={address.email} onChange={(e) => setAddress({ ...address, email: e.target.value })} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="city">City</Label>
