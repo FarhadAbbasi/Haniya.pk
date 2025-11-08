@@ -192,3 +192,22 @@ export async function getLatestProducts(limit = 4) {
   if (!data) return []
   return attachFirstImages(data)
 }
+
+export async function getCategoryLead(slug: string) {
+  const supabase = createClient()
+  const { data: cat } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle()
+  if (!cat) return null
+  const { data } = await supabase
+    .from("products")
+    .select("id, slug, title, price, currency")
+    .eq("category_id", cat.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+  if (!data || data.length === 0) return null
+  const [p] = await attachFirstImages(data)
+  return p
+}

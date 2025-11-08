@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Truck, Phone, Shield } from "lucide-react";
 import { getLatestProducts } from "@/lib/data/products";
+import { getCategoryLead } from "@/lib/data/products";
 
 function ProductCard({ href, title, price, image }: { href: string; title: string; price: string; image?: string }) {
   return (
     <Link href={href} className="group overflow-hidden rounded-lg border bg-white">
       {image ? (
-        <img src={image} alt={title} className="aspect-[3/4] w-full object-cover" />
+        <img src={image} alt={title} className="aspect-[3/4] w-full object-contain bg-white" />
       ) : (
         <div className="aspect-[3/4] w-full bg-gradient-to-b from-muted to-muted/60" />
       )}
@@ -17,6 +18,44 @@ function ProductCard({ href, title, price, image }: { href: string; title: strin
       </div>
     </Link>
   );
+}
+
+async function CollectionTiles() {
+  const slugs = ["printed-lawn", "printed-winter", "embroidery-lawn", "embroidery-winter"] as const
+  const titles: Record<typeof slugs[number], string> = {
+    "printed-lawn": "Printed Lawn",
+    "printed-winter": "Printed Winter",
+    "embroidery-lawn": "Embroidery Lawn",
+    "embroidery-winter": "Embroidery Winter",
+  }
+  const hrefs: Record<typeof slugs[number], string> = {
+    "printed-lawn": "/printed/lawn",
+    "printed-winter": "/printed/winter",
+    "embroidery-lawn": "/embroidery/lawn",
+    "embroidery-winter": "/embroidery/winter",
+  }
+  const leads = await Promise.all(slugs.map((s) => getCategoryLead(s)))
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-4 md:gap-4">
+      {slugs.map((slug, i) => {
+        const lead: any = leads[i]
+        const image = lead?.image as string | undefined
+        return (
+          <Link key={slug} href={hrefs[slug]} className="group relative overflow-hidden rounded-lg border bg-white">
+            {image ? (
+              <img src={image} alt={titles[slug]} className="aspect-[3/4] w-full object-contain bg-white" />
+            ) : (
+              <div className="aspect-[3/4] w-full bg-muted" />
+            )}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-3">
+              <p className="text-sm font-medium text-white drop-shadow">{titles[slug]}</p>
+            </div>
+          </Link>
+        )
+      })}
+    </div>
+  )
 }
 
 export default async function Home() {
@@ -30,16 +69,16 @@ export default async function Home() {
         <div className="absolute inset-0 -z-20 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/40" />
         {/* Optional background image (place /public/hero.jpg to activate) */}
         <div
-          className="absolute inset-0 -z-10 bg-cover bg-center"
+          className="absolute inset-0 -z-10 bg-contain bg-no-repeat bg-top md:bg-cover"
           style={{ backgroundImage: "url('/Hero.jpg'), url('/hero.jpg')" }}
         />
-        <div className="mx-auto flex min-h-[55vh] w-full max-w-7xl items-center px-4 py-12 md:min-h-[70vh] md:py-16">
-          <div className="max-w-2xl space-y-5">
+        <div className="mx-auto flex min-h-[35vh]  w-full max-w-7xl items-center px-4 py-12 md:min-h-[70vh] md:py-16">
+          <div className="max-w-2xl space-y-4 md:space-y-5">
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/80">New Season</p>
-            <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
+            <h1 className="text-balance text-2xl font-semibold leading-tight tracking-tight md:text-5xl">
               Luxury Lawn & Winter Collections
             </h1>
-            <p className="max-w-prose text-base text-foreground/80">
+            <p className="max-w-prose text-sm md:text-base text-foreground/80">
               Timeless designs with modern silhouettes. Crafted in premium fabrics for comfort in every season.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -54,22 +93,9 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Category tiles */}
+      {/* Collection image tiles */}
       <section className="mx-auto w-full max-w-7xl px-4 py-10 md:py-12">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-          <Link href="/printed/lawn" className="rounded-lg border bg-white p-6 text-center hover:shadow-sm">
-            <p className="text-sm font-medium">Printed Lawn</p>
-          </Link>
-          <Link href="/printed/winter" className="rounded-lg border bg-white p-6 text-center hover:shadow-sm">
-            <p className="text-sm font-medium">Printed Winter</p>
-          </Link>
-          <Link href="/embroidery/lawn" className="rounded-lg border bg-white p-6 text-center hover:shadow-sm">
-            <p className="text-sm font-medium">Embroidery Lawn</p>
-          </Link>
-          <Link href="/sale" className="rounded-lg border bg-white p-6 text-center hover:shadow-sm">
-            <p className="text-sm font-medium">Sale</p>
-          </Link>
-        </div>
+        <CollectionTiles />
       </section>
 
       {/* New Arrivals grid */}
@@ -92,27 +118,27 @@ export default async function Home() {
       </section>
 
       {/* Promo strip */}
-      <section className="border-t bg-white">
+      <section className="border-t bg-primary text-primary-foreground">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-10 text-sm md:grid-cols-3">
           <div className="flex items-center gap-3">
             <Truck className="h-5 w-5" />
             <div>
               <p className="font-medium">TCS Shipping</p>
-              <p className="text-muted-foreground">Fast nationwide delivery</p>
+              <p className="opacity-90">Fast nationwide delivery</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Shield className="h-5 w-5" />
             <div>
               <p className="font-medium">Easypaisa & COD</p>
-              <p className="text-muted-foreground">Secure & convenient payments</p>
+              <p className="opacity-90">Secure & convenient payments</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Phone className="h-5 w-5" />
             <div>
               <p className="font-medium">Need help?</p>
-              <p className="text-muted-foreground">WhatsApp: 0092 317-2956790</p>
+              <p className="opacity-90">WhatsApp: 0092 317-2956790</p>
             </div>
           </div>
         </div>

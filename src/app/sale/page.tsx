@@ -1,5 +1,6 @@
 import { CatalogFilters } from "@/components/catalog/filters"
 import { getSaleProducts } from "@/lib/data/products"
+import Link from "next/link"
 
 export default async function SalePage({
   searchParams,
@@ -16,9 +17,9 @@ export default async function SalePage({
       <CatalogFilters />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {products.map((p: any) => (
-          <div key={p.id} className="overflow-hidden rounded-lg border bg-white">
+          <Link key={p.id} href={`/p/${p.id}`} className="overflow-hidden rounded-lg border bg-white">
             {p.image ? (
-              <img src={p.image} alt={p.title} className="aspect-[3/4] w-full object-cover" />
+              <img src={p.image} alt={p.title} className="aspect-[3/4] w-full object-contain bg-white" />
             ) : (
               <div className="aspect-[3/4] w-full bg-muted" />
             )}
@@ -26,7 +27,7 @@ export default async function SalePage({
               <p className="text-sm font-medium">{p.title}</p>
               <p className="text-sm text-muted-foreground">{p.currency} {p.price.toLocaleString()}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

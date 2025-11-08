@@ -6,16 +6,15 @@ import { notFound } from "next/navigation"
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const slug = params.slug
+  const { slug } = await params
   let product = await getProductBySlug(slug)
   if (!product) {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug)
     if (isUuid) {
       product = await getProductById(slug)
     } else {
-      if (typeof slug !== "string") return notFound()
       const guess = slug.replace(/-/g, " ")
       product = await getProductByTitleLike(guess)
     }

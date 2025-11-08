@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ShoppingBag, User, Search, ChevronDown } from "lucide-react"
+import { ShoppingBag, User, Search, ChevronDown, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SearchInline } from "@/components/search/search-inline"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 export default function Header() {
   return (
@@ -77,6 +78,36 @@ export default function Header() {
             </Link>
           </Button>
         </div>
+                {/* Mobile menu */}
+        <div className="flex items-center gap-2 md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80 p-0">
+              <div className="border-b p-4">
+                <Link href="/" className="text-xl font-light tracking-tight">HANIYA.PK</Link>
+              </div>
+              <div className="p-4 space-y-1 text-sm">
+                <Link href="/new" className="block px-2 py-2">New Arrivals</Link>
+                <div className="mt-2 px-2 py-2 font-medium">Printed</div>
+                <div className="ml-2 space-y-1">
+                  <Link href="/printed/lawn" className="block px-2 py-1">Lawn</Link>
+                  <Link href="/printed/winter" className="block px-2 py-1">Winter Collection</Link>
+                </div>
+                <div className="mt-3 px-2 py-2 font-medium">Embroidery</div>
+                <div className="ml-2 space-y-1">
+                  <Link href="/embroidery/lawn" className="block px-2 py-1">Lawn</Link>
+                  <Link href="/embroidery/winter" className="block px-2 py-1">Winter Collection</Link>
+                </div>
+                <Link href="/sale" className="block px-2 py-2 mt-3">Sale</Link>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
       </div>
     </header>
   )

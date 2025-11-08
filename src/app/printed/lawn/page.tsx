@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic"
 import { CatalogFilters } from "@/components/catalog/filters"
 import { getProductsByCategorySlug } from "@/lib/data/products"
+import Link from "next/link"
 
 export default async function PrintedLawnPage({
   searchParams,
@@ -18,9 +19,9 @@ export default async function PrintedLawnPage({
       <CatalogFilters />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {products.map((p) => (
-          <div key={p.id} className="overflow-hidden rounded-lg border bg-white">
-            { (p as any).image ? (
-              <img src={(p as any).image} alt={p.title} className="aspect-[3/4] w-full object-cover" />
+          <Link href={`/p/${p.id}`} key={p.id} className="overflow-hidden rounded-lg border bg-white">
+            {(p as any).image ? (
+              <img src={(p as any).image} alt={p.title} className="aspect-[3/4] w-full object-contain bg-white" />
             ) : (
               <div className="aspect-[3/4] w-full bg-muted" />
             )}
@@ -28,7 +29,7 @@ export default async function PrintedLawnPage({
               <p className="text-sm font-medium">{p.title}</p>
               <p className="text-sm text-muted-foreground">{p.currency} {p.price.toLocaleString()}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

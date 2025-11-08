@@ -23,7 +23,7 @@ export function PdpClient({
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
       <div className="overflow-hidden rounded-lg border bg-white">
         {images && images.length > 0 ? (
-          <img src={images[0].url} alt={title} className="aspect-[3/4] w-full object-cover" />
+          <img src={images[0].url} alt={title} className="aspect-[3/4] w-full object-contain bg-white" />
         ) : (
           <div className="aspect-[3/4] w-full bg-muted" />
         )}
