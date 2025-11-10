@@ -1,3 +1,4 @@
+import { AuthClient } from "@/components/account/auth-client"
 export const dynamic = "force-dynamic"
 
 export default function AccountPage() {
@@ -22,10 +23,7 @@ export default function AccountPage() {
       </div>
 
       <div className="mt-6 overflow-hidden rounded-lg border bg-white">
-        <div className="border-b p-4 text-sm font-medium">Sign In</div>
-        <div className="p-4 text-sm text-muted-foreground">
-          Account authentication will be added here (email or OAuth). For now, please proceed with guest checkout.
-        </div>
+        <AuthClient />
       </div>
     </div>
   )

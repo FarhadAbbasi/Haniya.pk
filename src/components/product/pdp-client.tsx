@@ -7,6 +7,7 @@ import { useCart } from "@/store/cart"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Scale, ScaleIcon, ShoppingCartIcon } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 export function PdpClient({
   id,
@@ -34,6 +35,33 @@ export function PdpClient({
   const [size, setSize] = React.useState<string>("M")
   const [qty, setQty] = React.useState<number>(1)
   const router = useRouter()
+  const sb = createClient()
+  const [stockBySize, setStockBySize] = React.useState<Record<string, number>>({})
+  const available = stockBySize[size] ?? undefined
+
+  React.useEffect(() => {
+    let alive = true
+    ;(async () => {
+      try {
+        const { data } = await sb
+          .from("product_variants")
+          .select("size, stock")
+          .eq("product_id", id)
+        if (alive && data) {
+          const map: Record<string, number> = {}
+          for (const v of data as any[]) map[String((v as any).size)] = Number((v as any).stock || 0)
+          setStockBySize(map)
+        }
+      } catch {}
+    })()
+    return () => {
+      alive = false
+    }
+  }, [id])
+
+  React.useEffect(() => {
+    if (typeof available === "number" && qty > available) setQty(available > 0 ? available : 1)
+  }, [available])
 
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -70,18 +98,41 @@ export function PdpClient({
               -
             </button>
             <span className="w-10 text-center text-sm">{qty}</span>
-            <button aria-label="Increase" className="px-3 py-2 text-sm" onClick={() => setQty((q) => q + 1)}>
+            <button
+              aria-label="Increase"
+              className="px-3 py-2 text-sm"
+              onClick={() => setQty((q) => (typeof available === "number" ? Math.min(available, q + 1) : q + 1))}
+            >
               +
             </button>
           </div>
         </div>
+        {typeof available === "number" && (
+          <div className="mt-2 text-xs">
+            {available > 0 ? (
+              <span className="text-emerald-700">In stock: {available}</span>
+            ) : (
+              <span className="text-red-600 ">Out of stock</span>
+            )}
+          </div>
+        )}
         <div className="flex justify-end" >
           <Button variant="outline"> Size Chart</Button>
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
-          <Button variant= "outline" className="hover:bg-gray-500 hover:cursor-pointer"
+          <Button
+            variant= "outline"
+            className="hover:bg-gray-500 hover:cursor-pointer"
             onClick={() => {
+              if (typeof available === "number" && available <= 0) {
+                toast.error("Selected size is out of stock")
+                return
+              }
+              if (typeof available === "number" && qty > available) {
+                toast.error(`Only ${available} left in stock`)
+                return
+              }
               addItem({ id, title: `${title} (${size})`, price, qty, variant: size, image: images?.[0]?.url })
               toast.success("Added to cart")
             }}
@@ -89,9 +140,26 @@ export function PdpClient({
             <ShoppingCartIcon className="mr-2 h-4 w-4" />
             Add to Cart
           </Button>
-          <Button variant="default" className="hover:scale-105 hover:cursor-pointer" 
-          onClick={() => { clear(); addItem({ id, title: `${title} (${size})`, price, qty, variant: size, image: images?.[0]?.url }); toast.success("Added — taking you to checkout"); router.push("/checkout"); }}
-            >  Buy now</Button>
+          <Button
+            variant="default"
+            className="hover:scale-105 hover:cursor-pointer"
+            onClick={() => {
+              if (typeof available === "number" && available <= 0) {
+                toast.error("Selected size is out of stock")
+                return
+              }
+              if (typeof available === "number" && qty > available) {
+                toast.error(`Only ${available} left in stock`)
+                return
+              }
+              clear();
+              addItem({ id, title: `${title} (${size})`, price, qty, variant: size, image: images?.[0]?.url });
+              toast.success("Added — taking you to checkout");
+              router.push("/checkout");
+            }}
+          >
+            Buy now
+          </Button>
           {/* <Button variant="ghost">Size Chart</Button> */}
         </div>
 

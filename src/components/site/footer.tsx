@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t bg-white">
+    <footer className="w-full border-t bg-gray-100">
       <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
         <div className="grid grid-cols-1 gap-10 text-sm text-foreground/80 md:grid-cols-4">
           <div>
@@ -46,7 +46,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t pt-6 text-xs text-muted-foreground">
+        <div className="mt-12 border-t justify-center items-center flex pt-6 text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} Haniya.pk. All rights reserved.</p>
         </div>
       </div>

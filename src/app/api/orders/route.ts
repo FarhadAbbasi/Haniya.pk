@@ -68,6 +68,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: itemsErr.message }, { status: 500 })
     }
 
+    // Decrement variant stock if variant size provided
+    try {
+      for (const it of items as any[]) {
+        const size = it.variant as string | undefined
+        if (!size) continue
+        const { data: variant } = await supabase
+          .from("product_variants")
+          .select("id, stock")
+          .eq("product_id", it.id)
+          .eq("size", size)
+          .maybeSingle()
+        if (!variant) continue
+        const current = Number((variant as any).stock || 0)
+        const qty = Number(it.qty || 0)
+        const next = Math.max(0, current - qty)
+        const { error: upErr } = await supabase
+          .from("product_variants")
+          .update({ stock: next })
+          .eq("id", (variant as any).id)
+        if (!upErr) {
+          await supabase.from("stock_movements").insert({
+            variant_id: (variant as any).id,
+            delta: -qty,
+            reason: "order_placed",
+            order_id: (order as any).id,
+          } as any)
+        }
+      }
+    } catch {}
+
     // Create a payment row for COD (initiated)
     const { error: payErr } = await supabase.from("payments").insert({
       order_id: order.id,

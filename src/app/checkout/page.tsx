@@ -10,6 +10,7 @@ import { getTcsRateQuote } from "@/lib/shipping/tcs"
 import { initEasypaisaPayment } from "@/lib/payments/easypaisa"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { Check } from "lucide-react"
 
 export default function CheckoutPage() {
   const cart = useCart()
@@ -61,7 +62,7 @@ export default function CheckoutPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            items: cart.items.map((i) => ({ id: i.id, title: i.title, qty: i.qty, price: i.price, image: i.image })),
+            items: cart.items.map((i) => ({ id: i.id, title: i.title, qty: i.qty, price: i.price, image: i.image, variant: i.variant })),
             address,
             shipping,
             currency: "PKR",
@@ -188,7 +189,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <Button className="mt-4 w-full" disabled={placing} onClick={placeOrder}>
+          <Button className={`mt-4 w-full flex ${(placing || orderId) ? "opacity-60" : "hover:scale-105 hover:cursor-pointer"} `} disabled={placing} onClick={placeOrder}>
             {placing ? (
               <span className="inline-flex items-center gap-2">
                 <span>Placing order</span>
@@ -199,7 +200,7 @@ export default function CheckoutPage() {
                 </span>
               </span>
             ) : (
-              <span className="hover:scale-105 hover:cursor-pointer">Place Order</span>
+              orderId ? ( <span className="flex items-center gap-2">Order Placed <Check className="h-4 w-4" /> </span>) : ( <span>Place Order</span>)
             )}
           </Button>
 

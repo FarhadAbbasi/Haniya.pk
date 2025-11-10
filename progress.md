@@ -46,8 +46,15 @@ This document reflects the original master plan and where we stand today.
 - Pending: Live payment callbacks and production providers.
 
 ## Next Up (Immediate)
-- Order confirmation email after COD.
-- Improve search matching.
+- Admin Dashboard (in progress): Protected /admin, Orders & Products modules.
+- Inventory/Stock (in progress): Variants (S/M/L/XL), stock tracking, admin editing.
+- Improve search matching (remaining refinements).
 - Enrich Account page structure.
 - Cart line images and product links.
+
+## 11) Admin Dashboard (In Progress)
+- Scope: Orders, Products, Categories, Content, Settings; later Analytics.
+- Auth: Supabase Auth + admin_users RBAC.
+- Status: Admin shell scaffolded with sidebar/header and access guard.
+- Next: Orders list/detail; Products list with variants/stock editing.
 
