@@ -82,7 +82,7 @@ export default async function Home() {
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/80">New Season</p>
             <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
               Luxury Lawn & Winter Collections
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
             </h1>
             <p className="max-w-prose hidden md:block text-sm md:text-base text-foreground/80">
               Timeless designs with modern silhouettes. Crafted in premium fabrics for comfort in every season.

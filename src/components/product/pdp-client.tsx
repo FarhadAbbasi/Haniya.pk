@@ -5,6 +5,7 @@ import { SizeSelector } from "@/components/product/size-selector"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/store/cart"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { Scale, ScaleIcon, ShoppingCartIcon } from "lucide-react"
 
 export function PdpClient({
@@ -79,16 +80,18 @@ export function PdpClient({
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
-          <Button variant="outline"
-            onClick={() =>
-              addItem({ id, title: `${title} (${size})`, price, qty, variant: size })
-            }
+          <Button variant= "outline" className="hover:bg-gray-500 hover:cursor-pointer"
+            onClick={() => {
+              addItem({ id, title: `${title} (${size})`, price, qty, variant: size, image: images?.[0]?.url })
+              toast.success("Added to cart")
+            }}
           >
             <ShoppingCartIcon className="mr-2 h-4 w-4" />
             Add to Cart
           </Button>
-          <Button variant="default" onClick={() => { clear(); addItem({ id, title: `${title} (${size})`, price, qty, variant: size }); router.push("/checkout"); }}
-            >  Buy it now</Button>
+          <Button variant="default" className="hover:scale-105 hover:cursor-pointer" 
+          onClick={() => { clear(); addItem({ id, title: `${title} (${size})`, price, qty, variant: size, image: images?.[0]?.url }); toast.success("Added — taking you to checkout"); router.push("/checkout"); }}
+            >  Buy now</Button>
           {/* <Button variant="ghost">Size Chart</Button> */}
         </div>
 

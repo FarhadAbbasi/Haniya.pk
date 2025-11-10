@@ -23,20 +23,28 @@ export default function CheckoutPage() {
   })
   const [shipping, setShipping] = React.useState<{ cost: number; currency: string } | null>(null)
   const [payment, setPayment] = React.useState<"cod" | "easypaisa">("cod")
+  const [placing, setPlacing] = React.useState(false)
+  const [emailing, setEmailing] = React.useState(false)
+  const [orderId, setOrderId] = React.useState<string | null>(null)
   const subtotal = cart.total()
   const total = subtotal + (shipping?.cost || 0)
 
   async function quote() {
-    try {
-      const q = await getTcsRateQuote({ fromCity: "Karachi", toCity: address.city, weightKg: 1 })
-      setShipping({ cost: q.cost, currency: q.currency })
-      toast.success(`Shipping: ${q.currency} ${q.cost}`)
-    } catch (e) {
-      toast.error("Could not fetch shipping rate")
-    }
+    // try {
+    //   const q = await getTcsRateQuote({ fromCity: "Islamabad", toCity: address.city, weightKg: 1 })
+    //   setShipping({ cost: q.cost, currency: q.currency })
+    //   toast.success(`Shipping: ${q.currency} ${q.cost}`)
+    // } catch (e) {
+    //   toast.error("Could not fetch shipping rate")
+    // }
+    
+    // For Flat shipping PKR 200
+    setShipping({ cost: 200, currency: "PKR" })
+    toast.success(`Shipping: PKR 200`)
   }
 
   async function placeOrder() {
+    if (placing) return
     if (cart.items.length === 0) {
       toast.error("Your cart is empty")
       return
@@ -48,11 +56,12 @@ export default function CheckoutPage() {
 
     if (payment === "cod") {
       try {
+        setPlacing(true)
         const res = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            items: cart.items.map((i) => ({ id: i.id, qty: i.qty, price: i.price })),
+            items: cart.items.map((i) => ({ id: i.id, title: i.title, qty: i.qty, price: i.price, image: i.image })),
             address,
             shipping,
             currency: "PKR",
@@ -62,15 +71,40 @@ export default function CheckoutPage() {
         if (!res.ok) {
           throw new Error(json?.error || "Could not place order")
         }
-        const orderId = json.id
+        const oid = json.id as string
+        setOrderId(oid)
         toast.success("Order placed with Cash on Delivery")
         cart.clear()
-        router.push(`/order/success?id=${orderId}`)
+        // Show email sending progress on checkout page, then redirect
+        setEmailing(true)
+        const start = Date.now()
+        const timeoutMs = 30000
+        async function poll() {
+          try {
+            const r = await fetch(`/api/orders/status?id=${encodeURIComponent(oid)}`, { cache: "no-store" })
+            if (r.ok) {
+              const j = await r.json()
+              if (j.email_sent) {
+                router.push(`/order/success?id=${oid}`)
+                return
+              }
+            }
+          } catch {}
+          if (Date.now() - start > timeoutMs) {
+            router.push(`/order/success?id=${oid}`)
+            return
+          }
+          setTimeout(poll, 1500)
+        }
+        poll()
       } catch (e: any) {
         toast.error(e?.message || "Could not place order")
+      } finally {
+        setPlacing(false)
       }
     } else {
       try {
+        setPlacing(true)
         const res = await initEasypaisaPayment({
           amount: total,
           orderId: `order_${Date.now()}`,
@@ -81,6 +115,8 @@ export default function CheckoutPage() {
         window.location.href = res.redirectUrl
       } catch (e) {
         toast.error("Easypaisa init failed")
+      } finally {
+        setPlacing(false)
       }
     }
   }
@@ -152,7 +188,35 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <Button className="mt-4 w-full" onClick={placeOrder}>Place Order</Button>
+          <Button className="mt-4 w-full" disabled={placing} onClick={placeOrder}>
+            {placing ? (
+              <span className="inline-flex items-center gap-2">
+                <span>Placing order</span>
+                <span className="relative inline-flex h-1 w-6">
+                  <span className="absolute left-0 animate-bounce [animation-delay:-200ms]">•</span>
+                  <span className="absolute left-2 animate-bounce">•</span>
+                  <span className="absolute left-4 animate-bounce [animation-delay:200ms]">•</span>
+                </span>
+              </span>
+            ) : (
+              <span className="hover:scale-105 hover:cursor-pointer">Place Order</span>
+            )}
+          </Button>
+
+          {(orderId || emailing) && (
+            <div className="mt-3 text-center text-xs text-muted-foreground">
+              {emailing ? (
+                <span className="inline-flex items-center gap-2">
+                  <span>Sending confirmation email</span>
+                  <span className="relative inline-flex h-1 w-6">
+                    <span className="absolute left-0 animate-bounce [animation-delay:-200ms]">•</span>
+                    <span className="absolute left-2 animate-bounce">•</span>
+                    <span className="absolute left-4 animate-bounce [animation-delay:200ms]">•</span>
+                  </span>
+                </span>
+              ) : null}
+            </div>
+          )}
         </div>
       </div>
     </div>

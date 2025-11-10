@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { sendOrderConfirmationEmail } from "@/lib/email/resend"
+import { sendOrderEmailSMTP } from "@/lib/email/smtp"
 
 export async function POST(req: Request) {
   try {
@@ -78,6 +80,46 @@ export async function POST(req: Request) {
     if (payErr) {
       return NextResponse.json({ error: payErr.message }, { status: 500 })
     }
+
+    // Fire-and-forget order confirmation email (if provided)
+    try {
+      if (address.email) {
+        ;(async () => {
+          const sb = createClient()
+          let emailSent = false
+          try {
+            const smtpRes = await sendOrderEmailSMTP({
+              to: address.email,
+              orderId: order.id,
+              name: address.name,
+              items: items.map((i: any) => ({
+                title: i.title || "Product",
+                qty: Number(i.qty),
+                price: Number(i.price),
+                image: i.image,
+              })),
+              total: orderTotal,
+              shipping: { cost: Number(shipping?.cost || 0), currency },
+            })
+            if (smtpRes && (smtpRes as any).sent) {
+              emailSent = true
+            } else {
+              const rs = await sendOrderConfirmationEmail({
+                to: address.email,
+                orderId: order.id,
+                name: address.name,
+                items: items.map((i: any) => ({ title: i.title || "Product", qty: Number(i.qty), price: Number(i.price) })),
+                total: orderTotal,
+              })
+              if (rs && (rs as any).id) emailSent = true
+            }
+          } catch {}
+          finally {
+            await sb.from("orders").update({ email_sent: emailSent }).eq("id", order.id)
+          }
+        })()
+      }
+    } catch {}
 
     return NextResponse.json({ id: order.id })
   } catch (e: any) {

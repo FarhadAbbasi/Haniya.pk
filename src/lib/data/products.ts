@@ -13,6 +13,21 @@ export type DbProduct = {
   description?: string | null
 }
 
+export async function searchProducts(q: string, limit = 24) {
+  const supabase = createClient()
+  const pattern = `%${q}%`
+  const { data } = await supabase
+    .from("products")
+    .select("id, slug, title, price, compare_at_price, currency")
+    .or(
+      `title.ilike.${pattern},slug.ilike.${pattern},description.ilike.${pattern}`
+    )
+    .order("created_at", { ascending: false })
+    .limit(limit)
+  if (!data) return []
+  return attachFirstImages(data)
+}
+
 export async function getProductByTitleLike(titleLike: string) {
   const supabase = createClient()
   const { data: product } = await supabase

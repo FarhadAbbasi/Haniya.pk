@@ -5,10 +5,11 @@ import Link from "next/link"
 export default async function SalePage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const min = typeof searchParams?.min === "string" ? Number(searchParams.min) : undefined
-  const max = typeof searchParams?.max === "string" ? Number(searchParams.max) : undefined
+  const sp = await searchParams
+  const min = typeof sp?.min === "string" ? Number(sp.min) : undefined
+  const max = typeof sp?.max === "string" ? Number(sp.max) : undefined
   const products = await getSaleProducts({ min, max })
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
@@ -17,12 +18,13 @@ export default async function SalePage({
       <CatalogFilters />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {products.map((p: any) => (
-          <Link key={p.id} href={`/p/${p.id}`} className="overflow-hidden rounded-lg border bg-white">
+          <Link key={p.id} href={`/p/${p.id}`} className="relative overflow-hidden rounded-lg border bg-white">
             {p.image ? (
               <img src={p.image} alt={p.title} className="aspect-[3/4] w-full object-contain bg-white" />
             ) : (
               <div className="aspect-[3/4] w-full bg-muted" />
             )}
+            <div className="pointer-events-none absolute right-4 top-2 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">Sale</div>
             <div className="p-3">
               <p className="text-sm font-medium">{p.title}</p>
               <p className="text-sm">

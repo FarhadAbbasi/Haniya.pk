@@ -6,11 +6,12 @@ import Link from "next/link"
 export default async function EmbroideryLawnPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const min = typeof searchParams?.min === "string" ? Number(searchParams.min) : undefined
-  const max = typeof searchParams?.max === "string" ? Number(searchParams.max) : undefined
-  const q = typeof searchParams?.q === "string" ? searchParams.q : undefined
+  const sp = await searchParams
+  const min = typeof sp?.min === "string" ? Number(sp.min) : undefined
+  const max = typeof sp?.max === "string" ? Number(sp.max) : undefined
+  const q = typeof sp?.q === "string" ? sp.q : undefined
   const products = await getProductsByCategorySlug("embroidery-lawn", { min, max, q })
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
@@ -27,7 +28,12 @@ export default async function EmbroideryLawnPage({
             )}
             <div className="p-3">
               <p className="text-sm font-medium">{p.title}</p>
-              <p className="text-sm text-muted-foreground">{p.currency} {p.price.toLocaleString()}</p>
+              <p className="text-sm">
+                {(p as any).compare_at_price ? (
+                  <span className="mr-2 text-muted-foreground line-through">{p.currency} {Number((p as any).compare_at_price).toLocaleString()}</span>
+                ) : null}
+                <span>{p.currency} {Number((p as any).price).toLocaleString()}</span>
+              </p>
             </div>
           </Link>
         ))}
