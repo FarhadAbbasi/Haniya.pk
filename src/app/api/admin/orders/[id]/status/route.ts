@@ -5,7 +5,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const { id } = await params
     const res = new NextResponse()
-    const supabase = createRouteClient(res)
+    const supabase = await createRouteClient(res)
     const { data: auth } = await supabase.auth.getUser()
     const user = auth?.user
     if (!user?.email) return NextResponse.json({ error: "unauthorized" }, { status: 401 })
