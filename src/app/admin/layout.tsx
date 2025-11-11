@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -22,15 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     }
   }
 
-  if (!isAllowed) {
-    return (
-      <div className="mx-auto max-w-5xl px-4 py-16 text-center">
-        <h1 className="mb-2 text-2xl font-semibold tracking-tight">Admin Access Required</h1>
-        <p className="text-muted-foreground">Sign in with an authorized admin account to continue.</p>
-        <a href="/" className="mt-6 inline-block rounded-md border px-4 py-2 text-sm">Back to Home</a>
-      </div>
-    )
-  }
+  if (!isAllowed) redirect("/signin")
 
   return (
     <div className="min-h-screen bg-neutral-50 text-neutral-900">
@@ -41,6 +34,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <nav className="space-y-1 text-sm">
               <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin">Dashboard</Link>
               <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/orders">Orders</Link>
+              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/analytics">Analytics</Link>
               <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/products">Products</Link>
               <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/categories">Categories</Link>
               <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/content">Content</Link>

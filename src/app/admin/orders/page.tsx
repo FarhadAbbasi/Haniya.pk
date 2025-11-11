@@ -1,8 +1,9 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import { OrdersExportClient } from "@/components/admin/orders-export-client"
 
-export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
-  const { status, page } = await searchParams
+export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string; range?: string }> }) {
+  const { status, page, range } = await searchParams
   const supabase = createClient()
   const pageNum = Math.max(1, Number(page || 1))
   const pageSize = 20
@@ -16,12 +17,19 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
   if (status && ["pending","confirmed","shipped","cancelled"].includes(status)) {
     query = query.eq("status", status)
   }
+  if (range === "7" || range === "30") {
+    const days = Number(range)
+    const since = new Date()
+    since.setDate(since.getDate() - days)
+    since.setHours(0,0,0,0)
+    query = query.gte("created_at", since.toISOString())
+  }
   const { data: orders, count } = await query.range(from, to)
 
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
-      <form className="flex items-center gap-2" method="GET">
+      <form className="flex flex-wrap items-end gap-2" method="GET">
         <label className="text-sm text-neutral-600" htmlFor="status">Status</label>
         <select
           id="status"
@@ -35,8 +43,20 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           <option value="shipped">Shipped</option>
           <option value="cancelled">Cancelled</option>
         </select>
+        <label className="ml-3 text-sm text-neutral-600" htmlFor="range">Range</label>
+        <select id="range" name="range" defaultValue={range || ""} className="rounded border px-2 py-1 text-sm">
+          <option value="">All time</option>
+          <option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option>
+        </select>
         <input type="hidden" name="page" value="1" />
         <button type="submit" className="rounded border px-2 py-1 text-sm">Apply</button>
+        <div className="ml-auto flex gap-2">
+          <OrdersExportClient
+            baseHref={`/api/admin/orders/export?${new URLSearchParams({ ...(status ? { status } : {}), ...(range ? { range } : {}) }).toString()}`}
+            detailsHref={`/api/admin/orders/export?${new URLSearchParams({ ...(status ? { status } : {}), ...(range ? { range } : {}), details: "1" }).toString()}`}
+          />
+        </div>
       </form>
       <div className="overflow-hidden rounded-lg border bg-white">
         <div className="border-b p-3 text-sm font-medium">Latest Orders</div>
@@ -74,8 +94,8 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           Page {pageNum} {typeof count === "number" ? `of ${Math.max(1, Math.ceil(count / pageSize))}` : ""}
         </div>
         <div className="flex gap-2">
-          <Link className={`rounded border px-2 py-1 ${pageNum <= 1 ? "pointer-events-none opacity-50" : ""}`} href={`?${new URLSearchParams({ ...(status ? { status } : {}), page: String(Math.max(1, pageNum - 1)) }).toString()}`}>Prev</Link>
-          <Link className={`rounded border px-2 py-1 ${orders && orders.length < pageSize ? "pointer-events-none opacity-50" : ""}`} href={`?${new URLSearchParams({ ...(status ? { status } : {}), page: String(pageNum + 1) }).toString()}`}>Next</Link>
+          <Link className={`rounded border px-2 py-1 ${pageNum <= 1 ? "pointer-events-none opacity-50" : ""}`} href={`?${new URLSearchParams({ ...(status ? { status } : {}), ...(range ? { range } : {}), page: String(Math.max(1, pageNum - 1)) }).toString()}`}>Prev</Link>
+          <Link className={`rounded border px-2 py-1 ${orders && orders.length < pageSize ? "pointer-events-none opacity-50" : ""}`} href={`?${new URLSearchParams({ ...(status ? { status } : {}), ...(range ? { range } : {}), page: String(pageNum + 1) }).toString()}`}>Next</Link>
         </div>
       </div>
     </div>

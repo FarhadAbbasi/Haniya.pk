@@ -1,12 +1,14 @@
 import { createClient } from "@/lib/supabase/server"
 import { VariantTableClient } from "@/components/admin/variant-table-client"
+import { SavedToast } from "@/components/admin/saved-toast"
+import { CategoryFormClient } from "@/components/admin/category-form-client"
 
 export default async function AdminProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = createClient()
   const { data: product } = await supabase
     .from("products")
-    .select("id, title, price, currency, is_sale, is_new")
+    .select("id, title, price, currency, is_sale, is_new, category_id")
     .eq("id", id)
     .maybeSingle()
 
@@ -16,12 +18,18 @@ export default async function AdminProductDetail({ params }: { params: Promise<{
     .eq("product_id", id)
     .order("size", { ascending: true })
 
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name")
+    .order("name", { ascending: true })
+
   if (!product) {
     return <div className="text-sm text-neutral-500">Product not found.</div>
   }
 
   return (
     <div className="space-y-4">
+      <SavedToast />
       <h1 className="text-2xl font-semibold tracking-tight">{product.title}</h1>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -47,6 +55,17 @@ export default async function AdminProductDetail({ params }: { params: Promise<{
               <div className="flex justify-between"><span>Currency</span><span>{product.currency}</span></div>
               <div className="flex justify-between"><span>Sale</span><span>{product.is_sale ? "Yes" : "No"}</span></div>
               <div className="flex justify-between"><span>New</span><span>{product.is_new ? "Yes" : "No"}</span></div>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-lg border bg-white">
+            <div className="border-b p-3 text-sm font-medium">Category</div>
+            <div className="p-3 text-sm">
+              <CategoryFormClient
+                actionUrl={`/api/admin/products/${product.id}/category`}
+                defaultCategoryId={product.category_id || ""}
+                options={(categories || []).map((c: any) => ({ id: String(c.id), name: String(c.name) }))}
+              />
             </div>
           </div>
         </div>

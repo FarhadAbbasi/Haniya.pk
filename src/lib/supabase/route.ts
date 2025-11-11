@@ -1,19 +1,21 @@
 import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 import { createServerClient } from "@supabase/ssr"
 
-export function createRouteClient(res: NextResponse) {
+export async function createRouteClient(res: NextResponse) {
+  const store = await cookies()
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL as string,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
     {
       cookies: {
-        get() {
-          return undefined as any
+        async get(name: string) {
+          return store.get(name)?.value
         },
-        set(name: string, value: string, options: any) {
+        async set(name: string, value: string, options: any) {
           res.cookies.set({ name, value, ...options })
         },
-        remove(name: string, options: any) {
+        async remove(name: string, options: any) {
           res.cookies.set({ name, value: "", ...options, maxAge: 0 })
         },
       },

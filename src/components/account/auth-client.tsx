@@ -3,26 +3,51 @@
 import * as React from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
-export function AuthClient() {
+export function AuthClient({ redirectPath = "/account" }: { redirectPath?: string }) {
   const supabase = createClient()
   const [email, setEmail] = React.useState("")
+  const [password, setPassword] = React.useState("")
   const [loading, setLoading] = React.useState(false)
+  const [mode, setMode] = React.useState<"password" | "magic">("password")
+  const router = useRouter()
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault()
     if (!email) return
     try {
       setLoading(true)
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/account` : undefined,
-        },
-      })
-      if (error) throw error
-      toast.success("Check your email for the sign-in link")
+      if (mode === "password") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw error
+        toast.success("Signed in")
+        router.replace(redirectPath)
+      } else {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: true,
+            emailRedirectTo: (() => {
+              if (typeof window !== "undefined") {
+                const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                const base = isLocal
+                  ? window.location.origin
+                  : (process.env.NEXT_PUBLIC_SITE_URL || window.location.origin)
+                const sanitized = base.replace(/\/$/, "")
+                return `${sanitized}/auth/callback?next=${encodeURIComponent(redirectPath)}`
+              }
+              if (process.env.NEXT_PUBLIC_SITE_URL) {
+                const sanitized = process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")
+                return `${sanitized}/auth/callback?next=${encodeURIComponent(redirectPath)}`
+              }
+              return undefined
+            })(),
+          },
+        })
+        if (error) throw error
+        toast.success("Check your email for the sign-in link")
+      }
     } catch (err: any) {
       toast.error(err?.message || "Could not send magic link")
     } finally {
@@ -48,12 +73,32 @@ export function AuthClient() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+        {mode === "password" && (
+          <>
+            <label className="mb-1 mt-3 block">Password</label>
+            <input
+              type="password"
+              className="w-full rounded border px-3 py-2"
+              placeholder="Your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </>
+        )}
         <button
           type="submit"
           disabled={loading}
           className="mt-3 inline-flex items-center rounded bg-black px-3 py-2 text-xs font-medium text-white disabled:opacity-60"
         >
-          {loading ? "Sending…" : "Send magic link"}
+          {loading ? (mode === "password" ? "Signing…" : "Sending…") : (mode === "password" ? "Sign in" : "Send magic link")}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode((m) => (m === "password" ? "magic" : "password"))}
+          className="ml-2 inline-flex items-center rounded border px-3 py-2 text-xs"
+        >
+          {mode === "password" ? "Use magic link" : "Use password"}
         </button>
         <button
           type="button"

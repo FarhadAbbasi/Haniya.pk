@@ -55,13 +55,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: addrErr.message }, { status: 500 })
     }
 
-    const orderItems = items.map((it: any) => ({
-      order_id: order.id,
-      product_id: it.id,
-      qty: Number(it.qty),
-      price: Number(it.price),
-      currency: currency,
-    }))
+    // Detect variant FK column name (handles varient_id vs variant_id)
+    let variantCol: "varient_id" | "variant_id" = "varient_id"
+    try {
+      const test = await supabase.from("order_items").select("varient_id").limit(1)
+      if ((test as any).error) throw (test as any).error
+      variantCol = "varient_id"
+    } catch {
+      variantCol = "variant_id"
+    }
+
+    const orderItems: any[] = []
+    for (const it of items as any[]) {
+      let varient_id: string | null = null
+      const size = it.variant as string | undefined
+      if (size) {
+        const { data: vrow } = await supabase
+          .from("product_variants")
+          .select("id")
+          .eq("product_id", it.id)
+          .eq("size", size)
+          .maybeSingle()
+        if (vrow) varient_id = String((vrow as any).id)
+      }
+      orderItems.push({
+        order_id: order.id,
+        product_id: it.id,
+        [variantCol]: varient_id,
+        qty: Number(it.qty),
+        price: Number(it.price),
+        currency: currency,
+      })
+    }
 
     const { error: itemsErr } = await supabase.from("order_items").insert(orderItems)
     if (itemsErr) {
