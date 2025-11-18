@@ -14,14 +14,14 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
     .from("orders")
     .select("id, created_at, total, status, email_sent", { count: "exact" })
     .order("created_at", { ascending: false }) as any
-  if (status && ["pending","confirmed","shipped","cancelled"].includes(status)) {
+  if (status && ["pending", "confirmed", "shipped", "cancelled"].includes(status)) {
     query = query.eq("status", status)
   }
   if (range === "7" || range === "30") {
     const days = Number(range)
     const since = new Date()
     since.setDate(since.getDate() - days)
-    since.setHours(0,0,0,0)
+    since.setHours(0, 0, 0, 0)
     query = query.gte("created_at", since.toISOString())
   }
   const { data: orders, count } = await query.range(from, to)
@@ -35,7 +35,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           id="status"
           name="status"
           defaultValue={status || ""}
-          className="rounded border px-2 py-1 text-sm"
+          className="rounded border pr-6 py-1 text-sm"
         >
           <option value="">All</option>
           <option value="pending">Pending</option>
@@ -50,7 +50,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           <option value="30">Last 30 days</option>
         </select>
         <input type="hidden" name="page" value="1" />
-        <button type="submit" className="rounded border px-2 py-1 text-sm">Apply</button>
+        <button type="submit" className="rounded border bg-slate-500 text-white px-2 py-1 text-sm hover:cursor-pointer ">Apply</button>
         <div className="ml-auto flex gap-2">
           <OrdersExportClient
             baseHref={`/api/admin/orders/export?${new URLSearchParams({ ...(status ? { status } : {}), ...(range ? { range } : {}) }).toString()}`}
@@ -81,7 +81,9 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                   <td className="px-3 py-2">{o.status}</td>
                   <td className="px-3 py-2">{o.email_sent ? "Sent" : "Pending"}</td>
                   <td className="px-3 py-2 text-right">
-                    <Link href={`/admin/orders/${o.id}`} className="text-xs text-blue-600 hover:underline">View</Link>
+                    <Link href={`/admin/orders/${o.id}`} className="text-xs text-blue-800 ">
+                      <button type="submit" className="rounded border bg-slate-300 px-2 py-1 text-sm hover:cursor-pointer focus:bg-slate-400">View</button>
+                    </Link>
                   </td>
                 </tr>
               ))}

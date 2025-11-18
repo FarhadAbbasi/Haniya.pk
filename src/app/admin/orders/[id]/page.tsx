@@ -10,11 +10,21 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
     .eq("id", id)
     .maybeSingle()
 
+  // Fetch items (some schemas may not have created_at on order_items), then enrich with product titles
   const { data: items } = await supabase
     .from("order_items")
-    .select("product_id, title, qty, price")
+    .select("product_id, qty, price")
     .eq("order_id", id)
-    .order("created_at", { ascending: true })
+
+  const productIds = Array.from(new Set(((items as any[]) || []).map((it) => String(it.product_id)).filter(Boolean)))
+  let productsById = new Map<string, { title?: string | null }>()
+  if (productIds.length) {
+    const { data: prods } = await supabase
+      .from("products")
+      .select("id, title")
+      .in("id", productIds)
+    for (const p of (prods as any[]) || []) productsById.set(String(p.id), { title: p.title })
+  }
 
   const { data: addr } = await supabase
     .from("order_addresses")
@@ -38,7 +48,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
               {(items || []).map((i: any, idx: number) => (
                 <div key={idx} className="flex items-center justify-between p-3">
                   <div>
-                    <div className="font-medium">{i.title}</div>
+                    <div className="font-medium">{productsById.get(String(i.product_id))?.title || String(i.product_id)}</div>
                     <div className="text-xs text-neutral-500">Qty {i.qty}</div>
                   </div>
                   <div>Rs. {(Number(i.price) * Number(i.qty)).toLocaleString()}</div>

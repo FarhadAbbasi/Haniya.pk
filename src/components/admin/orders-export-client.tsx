@@ -27,7 +27,7 @@ export function OrdersExportClient({ baseHref, detailsHref }: { baseHref: string
         type="button"
         onClick={() => trigger(baseHref, "base")}
         disabled={exporting !== "none"}
-        className="rounded border px-2 py-1 text-sm disabled:opacity-60"
+        className="rounded border px-2 py-1 text-sm hover:cursor-pointer  disabled:opacity-60"
       >
         {exporting === "base" ? "Exporting…" : "Export CSV"}
       </button>
@@ -35,7 +35,7 @@ export function OrdersExportClient({ baseHref, detailsHref }: { baseHref: string
         type="button"
         onClick={() => trigger(detailsHref, "details")}
         disabled={exporting !== "none"}
-        className="rounded border px-2 py-1 text-sm disabled:opacity-60"
+        className="rounded border px-2 py-1 text-sm hover:cursor-pointer disabled:opacity-60"
       >
         {exporting === "details" ? "Exporting…" : "Export CSV (with items)"}
       </button>

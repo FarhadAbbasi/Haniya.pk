@@ -78,7 +78,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           </select>
         </div>
         <input type="hidden" name="page" value="1" />
-        <button type="submit" className="rounded border bg-slate-300 px-2 py-1 text-sm hover:cursor-pointer hover:bg-slate-200">Apply</button>
+        <button type="submit" className="rounded border bg-slate-500 text-white px-2 py-1 text-sm hover:cursor-pointer ">Apply</button>
       </form>
       <div className="overflow-hidden rounded-lg border bg-white">
         <div className="border-b p-3 text-sm font-medium">Latest Products</div>
@@ -108,7 +108,9 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                     <td className="px-3 py-2">{agg.count}</td>
                     <td className="px-3 py-2">{agg.stock}</td>
                     <td className="px-3 py-2 text-right">
-                      <Link href={`/admin/products/${p.id}`} className="rounded border px-2 py-1 text-xs hover:bg-neutral-50 hover:cursor-pointer">Open</Link>
+                      <Link href={`/admin/products/${p.id}`} className="rounded border text-xs text-blue-800">
+                        <button type="submit" className="rounded border bg-slate-300 px-2 py-1 text-sm hover:cursor-pointer focus:bg-slate-400">Open</button>
+                      </Link>
                     </td>
                   </tr>
                 )
