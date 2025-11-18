@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { createRouteClient } from "@/lib/supabase/route"
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const res = new NextResponse()
   try {
     const supabase = await createRouteClient(res)
