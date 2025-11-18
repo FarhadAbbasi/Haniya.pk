@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Scale, ScaleIcon, ShoppingCartIcon } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import useEmblaCarousel from "embla-carousel-react"
+import { ImageLightbox } from "@/components/product/image-lightbox"
 
 export function PdpClient({
   id,
@@ -65,18 +67,35 @@ export function PdpClient({
 
   const [imgIdx, setImgIdx] = React.useState(0)
   const mainImg = images && images.length > 0 ? images[Math.min(imgIdx, images.length - 1)] : undefined
+  const [openLb, setOpenLb] = React.useState(false)
+  const [emblaRef, embla] = useEmblaCarousel({ loop: false })
+  React.useEffect(() => {
+    if (!embla) return
+    const onSelect = () => setImgIdx(embla.selectedScrollSnap())
+    embla.on("select", onSelect)
+    return () => { embla.off("select", onSelect) }
+  }, [embla])
+  React.useEffect(() => {
+    embla?.scrollTo(imgIdx, false)
+  }, [imgIdx, embla])
   const sizeOrder = ["XS", "S", "M", "L", "XL"]
   const sizeOptions = sizeOrder.filter((s) => Object.prototype.hasOwnProperty.call(stockBySize, s))
 
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
       <div>
-        <div className="overflow-hidden rounded-lg border bg-white">
-          {mainImg ? (
-            <img src={mainImg.url} alt={title} className="aspect-[3/4] w-full object-contain bg-white" />
-          ) : (
-            <div className="aspect-[3/4] w-full bg-muted" />
-          )}
+        <div className="overflow-hidden rounded-lg border bg-white" ref={emblaRef}>
+          <div className="flex" onClick={() => mainImg && setOpenLb(true)}>
+            {(images && images.length > 0 ? images : [undefined]).map((im, i) => (
+              <div key={`${im?.url || "placeholder"}-${i}`} className="min-w-0 flex-[0_0_100%]">
+                {im ? (
+                  <img src={im.url} alt={title} className="aspect-[3/4] w-full object-contain bg-white" />
+                ) : (
+                  <div className="aspect-[3/4] w-full bg-muted" />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
         {images && images.length > 1 ? (
           <div className="mt-3 grid grid-cols-5 gap-2">
@@ -91,6 +110,9 @@ export function PdpClient({
               </button>
             ))}
           </div>
+        ) : null}
+        {images && images.length > 0 ? (
+          <ImageLightbox images={images} open={openLb} onOpenChange={setOpenLb} startIndex={imgIdx} />
         ) : null}
       </div>
       <div>
