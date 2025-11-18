@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Truck, Phone, Shield } from "lucide-react";
 import { getLatestProducts } from "@/lib/data/products";
 import { getCategoryLead } from "@/lib/data/products";
-import VapiWidget from "@/components/site/vapi-widget";
+// import VapiWidget from "@/components/site/vapi-widget";
 
 function ProductCard({ href, title, price, compareAtPrice, image }: { href: string; title: string; price: string; compareAtPrice?: string; image?: string }) {
   return (

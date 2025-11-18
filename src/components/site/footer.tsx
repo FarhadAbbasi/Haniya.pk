@@ -1,5 +1,5 @@
 import Link from "next/link"
-import VapiWidget from "./vapi-widget"
+// import VapiWidget from "./vapi-widget"
 
 export default function Footer() {
   return (
