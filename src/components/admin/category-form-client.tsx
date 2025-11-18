@@ -29,7 +29,7 @@ export function CategoryFormClient({
         ))}
       </select>
       <button
-        className="mt-3 rounded bg-black px-3 py-1 text-xs font-medium text-white disabled:opacity-60"
+        className="mt-3 rounded bg-black px-3 py-1 text-xs font-medium text-white disabled:opacity-60 hover:cursor-pointer"
         disabled={saving}
         type="submit"
       >

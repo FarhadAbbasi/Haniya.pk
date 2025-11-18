@@ -2,19 +2,22 @@ import { createClient } from "@/lib/supabase/server"
 import { VariantTableClient } from "@/components/admin/variant-table-client"
 import { SavedToast } from "@/components/admin/saved-toast"
 import { CategoryFormClient } from "@/components/admin/category-form-client"
+import { ProductDetailsFormClient } from "@/components/admin/product-details-form-client"
+import { DeleteProductFormClient } from "@/components/admin/delete-product-form-client"
+import { AddVariantFormClient } from "@/components/admin/add-variant-form-client"
 
 export default async function AdminProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = createClient()
   const { data: product } = await supabase
     .from("products")
-    .select("id, title, price, currency, is_sale, is_new, category_id")
+    .select("id, title, price, compare_at_price, currency, is_sale, is_new, category_id, fabric, description")
     .eq("id", id)
     .maybeSingle()
 
   const { data: variants } = await supabase
     .from("product_variants")
-    .select("id, size, color, sku, price, stock, is_active")
+    .select("id, size, color, sku, stock")
     .eq("product_id", id)
     .order("size", { ascending: true })
 
@@ -22,6 +25,12 @@ export default async function AdminProductDetail({ params }: { params: Promise<{
     .from("categories")
     .select("id, name")
     .order("name", { ascending: true })
+
+  const { data: images } = await supabase
+    .from("product_images")
+    .select("url, sort")
+    .eq("product_id", id)
+    .order("sort", { ascending: true })
 
   if (!product) {
     return <div className="text-sm text-neutral-500">Product not found.</div>
@@ -41,10 +50,13 @@ export default async function AdminProductDetail({ params }: { params: Promise<{
               size: v.size,
               color: v.color,
               sku: v.sku,
-              price: typeof v.price === "number" ? v.price : null,
               stock: Number(v.stock || 0),
-              is_active: !!v.is_active,
+              is_active: true,
             })) || []} />
+          </div>
+          <div className="overflow-hidden rounded-lg border bg-white">
+            <div className="border-b p-3 text-sm font-medium">Add Variant</div>
+            <AddVariantFormClient actionUrl={`/api/admin/products/${product.id}/variants`} productId={product.id} />
           </div>
         </div>
         <div className="space-y-3">
@@ -59,6 +71,14 @@ export default async function AdminProductDetail({ params }: { params: Promise<{
           </div>
 
           <div className="overflow-hidden rounded-lg border bg-white">
+            <div className="border-b p-3 text-sm font-medium">Details</div>
+            <ProductDetailsFormClient
+              actionUrl={`/api/admin/products/${product.id}`}
+              initial={{ title: product.title, price: product.price, compare_at_price: product.compare_at_price, currency: product.currency, is_sale: product.is_sale, is_new: product.is_new, fabric: product.fabric, description: product.description, images: (images || []).map((im: any) => String(im.url)) }}
+            />
+          </div>
+
+          <div className="overflow-hidden rounded-lg border bg-white">
             <div className="border-b p-3 text-sm font-medium">Category</div>
             <div className="p-3 text-sm">
               <CategoryFormClient
@@ -68,6 +88,13 @@ export default async function AdminProductDetail({ params }: { params: Promise<{
               />
             </div>
           </div>
+
+
+          <div className="overflow-hidden rounded-lg border bg-white">
+            <div className="border-b p-3 text-sm font-medium">Danger Zone</div>
+            <DeleteProductFormClient actionUrl={`/api/admin/products/${product.id}`} />
+          </div>
+
         </div>
       </div>
     </div>

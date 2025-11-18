@@ -49,6 +49,9 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
+      <div>
+        <Link href="/admin/products/new" className="inline-flex items-center rounded bg-black px-3 py-2 text-xs font-medium text-white hover:cursor-pointer">Add Product</Link>
+      </div>
       <form className="flex flex-wrap items-end gap-2" method="GET">
         <div className="flex flex-col text-sm">
           <label className="text-neutral-600" htmlFor="sale">Sale</label>
@@ -105,7 +108,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
                     <td className="px-3 py-2">{agg.count}</td>
                     <td className="px-3 py-2">{agg.stock}</td>
                     <td className="px-3 py-2 text-right">
-                      <Link href={`/admin/products/${p.id}`} className="text-xs text-blue-600 hover:underline">Open</Link>
+                      <Link href={`/admin/products/${p.id}`} className="rounded border px-2 py-1 text-xs hover:bg-neutral-50 hover:cursor-pointer">Open</Link>
                     </td>
                   </tr>
                 )

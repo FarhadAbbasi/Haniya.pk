@@ -4,8 +4,13 @@ import * as React from "react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 
-export function SizeSelector({ onChange }: { onChange?: (v: string) => void }) {
-  const [value, setValue] = React.useState("M")
+export function SizeSelector({ sizes = [], onChange }: { sizes?: string[]; onChange?: (v: string) => void }) {
+  const [value, setValue] = React.useState<string>(sizes[0] || "")
+  React.useEffect(() => {
+    if (!sizes || sizes.length === 0) return
+    setValue((prev) => (prev && sizes.includes(prev) ? prev : sizes[0]))
+  }, [sizes])
+  if (!sizes || sizes.length === 0) return null
   return (
     <RadioGroup
       value={value}
@@ -15,7 +20,7 @@ export function SizeSelector({ onChange }: { onChange?: (v: string) => void }) {
       }}
       className="grid grid-cols-4 gap-2"
     >
-      {["XS","S","M","L","XL"].map((s) => (
+      {sizes.map((s) => (
         <div key={s} className="flex items-center gap-2 rounded-md border px-3 py-2">
           <RadioGroupItem value={s} id={`size-${s}`} />
           <Label htmlFor={`size-${s}`} className="text-sm">

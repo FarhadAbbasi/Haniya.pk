@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { AdminMobileNav } from "@/components/admin/admin-mobile-nav"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -45,7 +46,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <main className="min-w-0">
           <header className="sticky top-0 z-10 border-b bg-white/70 backdrop-blur">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-              <div className="text-sm text-neutral-600">Haniya.pk Admin</div>
+              <div className="flex items-center gap-3">
+                <div className="md:hidden"><AdminMobileNav /></div>
+                <div className="hidden md:block text-sm text-neutral-600">Haniya.pk Admin</div>
+              </div>
               <div className="text-xs text-neutral-500">Signed in as {user?.email}</div>
             </div>
           </header>

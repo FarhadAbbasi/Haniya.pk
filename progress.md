@@ -13,7 +13,8 @@ This document reflects the original master plan and where we stand today.
 
 ## 3) Product Detail Page (PDP)
 - Done: Mobile-first PDP with price, old price, sizes, quantity, Add to Cart, Buy Now.
-- Pending: Gallery thumbnails/zoom.
+- Done: Gallery with main image + thumbnails (multi-image support), size list shows only existing variants.
+- Pending: Zoom/lightbox and swipe gestures.
 
 ## 4) Images & Presentation
 - Done: All listings and PDP images avoid cropping.
@@ -46,15 +47,17 @@ This document reflects the original master plan and where we stand today.
 - Pending: Live payment callbacks and production providers.
 
 ## Next Up (Immediate)
-- Admin Dashboard (in progress): Protected /admin, Orders & Products modules.
-- Inventory/Stock (in progress): Variants (S/M/L/XL), stock tracking, admin editing.
+- PDP polish: zoom/lightbox, swipe gestures.
 - Improve search matching (remaining refinements).
 - Enrich Account page structure.
 - Cart line images and product links.
 
 ## 11) Admin Dashboard (In Progress)
 - Scope: Orders, Products, Categories, Content, Settings; later Analytics.
-- Auth: Supabase Auth + admin_users RBAC.
-- Status: Admin shell scaffolded with sidebar/header and access guard.
-- Next: Orders list/detail; Products list with variants/stock editing.
+- Auth: Supabase Auth + admin_users RBAC (guard live on /admin).
+
+- Status (Done): Shell with sidebar/header; responsive mobile menu via Sheet; dashboard metrics (today orders, total orders, revenue, recent orders) implemented.
+- Products: Full CRUD with multi-images, slugging, description/fabric/compare_at_price; variants S/M/L auto-create; Add Variant; delete variant; inline stock update.
+
+- Next: Orders list/detail; analytics basics; category/content editors.
 

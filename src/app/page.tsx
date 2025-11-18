@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Truck, Phone, Shield } from "lucide-react";
 import { getLatestProducts } from "@/lib/data/products";
 import { getCategoryLead } from "@/lib/data/products";
+import VapiWidget from "@/components/site/vapi-widget";
 
 function ProductCard({ href, title, price, compareAtPrice, image }: { href: string; title: string; price: string; compareAtPrice?: string; image?: string }) {
   return (
@@ -74,7 +75,7 @@ export default async function Home() {
         <div className="absolute inset-0 -z-20 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/40" />
         {/* Optional background image (place /public/hero.jpg to activate) */}
         <div
-          className="absolute inset-0 -z-10 bg-contain bg-no-repeat bg-top md:bg-cover"
+          className="absolute inset-0 -z-10 bg-cover bg-no-repeat bg-top md:bg-cover"
           style={{ backgroundImage: "url('/Hero.jpg'), url('/hero.jpg')" }}
         />
         <div className="mx-auto flex min-h-[35vh]  w-full max-w-7xl items-center px-4 py-12 md:min-h-[70vh] md:py-16">
@@ -82,7 +83,7 @@ export default async function Home() {
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/80">New Season</p>
             <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
               Luxury Lawn & Winter Collections
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
             </h1>
             <p className="max-w-prose hidden md:block text-sm md:text-base text-foreground/80">
               Timeless designs with modern silhouettes. Crafted in premium fabrics for comfort in every season.

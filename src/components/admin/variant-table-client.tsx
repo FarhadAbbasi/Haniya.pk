@@ -2,13 +2,13 @@
 
 import * as React from "react"
 import { toast } from "sonner"
+import { Trash2Icon } from "lucide-react"
 
 type Variant = {
   id: string
   size: string
   color?: string | null
   sku?: string | null
-  price?: number | null
   stock: number
   is_active: boolean
 }
@@ -16,6 +16,7 @@ type Variant = {
 export function VariantTableClient({ variants: initial }: { variants: Variant[] }) {
   const [rows, setRows] = React.useState<Variant[]>(initial)
   const [saving, setSaving] = React.useState<string | null>(null)
+  const [removing, setRemoving] = React.useState<string | null>(null)
 
   async function updateStock(variantId: string, stock: number) {
     try {
@@ -34,6 +35,27 @@ export function VariantTableClient({ variants: initial }: { variants: Variant[] 
       setSaving(null)
     }
   }
+  async function deleteVariant(variantId: string) {
+    const ok = window.confirm("Delete this variant?")
+    if (!ok) return
+    try {
+      setRemoving(variantId)
+      const res = await fetch("/api/admin/variants/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantId }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.error || "Failed to delete variant")
+      setRows((r) => r.filter((x) => x.id !== variantId))
+      toast.success("Variant deleted")
+    } catch (e: any) {
+      toast.error(e?.message || "Could not delete variant")
+    } finally {
+      setRemoving(null)
+    }
+  }
+
 
   return (
     <div className="overflow-x-auto">
@@ -43,7 +65,6 @@ export function VariantTableClient({ variants: initial }: { variants: Variant[] 
             <th className="px-3 py-2">Size</th>
             <th className="px-3 py-2">Color</th>
             <th className="px-3 py-2">SKU</th>
-            <th className="px-3 py-2">Price</th>
             <th className="px-3 py-2">Stock</th>
             <th className="px-3 py-2">Actions</th>
           </tr>
@@ -54,7 +75,6 @@ export function VariantTableClient({ variants: initial }: { variants: Variant[] 
               <td className="px-3 py-2">{v.size}</td>
               <td className="px-3 py-2">{v.color || "—"}</td>
               <td className="px-3 py-2 font-mono text-xs">{v.sku || "—"}</td>
-              <td className="px-3 py-2">{typeof v.price === "number" ? `Rs. ${v.price.toLocaleString()}` : "—"}</td>
               <td className="px-3 py-2">
                 <input
                   type="number"
@@ -69,13 +89,22 @@ export function VariantTableClient({ variants: initial }: { variants: Variant[] 
                   }}
                 />
               </td>
-              <td className="px-3 py-2">
+              <td className="px-3 py-2 flex items-center gap-2">
                 <button
                   className="rounded bg-black px-3 py-1 text-xs font-medium text-white disabled:opacity-60"
                   disabled={saving === v.id}
                   onClick={() => updateStock(v.id, v.stock)}
                 >
                   {saving === v.id ? "Saving…" : "Save"}
+                </button>
+                <button
+                  aria-label="Delete variant"
+                  title="Delete"
+                  className="rounded border px-2 py-1 text-xs hover:bg-neutral-50 disabled:opacity-60"
+                  disabled={removing === v.id}
+                  onClick={() => deleteVariant(v.id)}
+                >
+                  <Trash2Icon className="h-4 w-4" />
                 </button>
               </td>
             </tr>

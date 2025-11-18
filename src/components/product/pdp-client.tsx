@@ -63,14 +63,35 @@ export function PdpClient({
     if (typeof available === "number" && qty > available) setQty(available > 0 ? available : 1)
   }, [available])
 
+  const [imgIdx, setImgIdx] = React.useState(0)
+  const mainImg = images && images.length > 0 ? images[Math.min(imgIdx, images.length - 1)] : undefined
+  const sizeOrder = ["XS", "S", "M", "L", "XL"]
+  const sizeOptions = sizeOrder.filter((s) => Object.prototype.hasOwnProperty.call(stockBySize, s))
+
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-      <div className="overflow-hidden rounded-lg border bg-white">
-        {images && images.length > 0 ? (
-          <img src={images[0].url} alt={title} className="aspect-[3/4] w-full object-contain bg-white" />
-        ) : (
-          <div className="aspect-[3/4] w-full bg-muted" />
-        )}
+      <div>
+        <div className="overflow-hidden rounded-lg border bg-white">
+          {mainImg ? (
+            <img src={mainImg.url} alt={title} className="aspect-[3/4] w-full object-contain bg-white" />
+          ) : (
+            <div className="aspect-[3/4] w-full bg-muted" />
+          )}
+        </div>
+        {images && images.length > 1 ? (
+          <div className="mt-3 grid grid-cols-5 gap-2">
+            {images.map((im, i) => (
+              <button
+                key={`${im.url}-${i}`}
+                aria-label={`Image ${i + 1}`}
+                className={`aspect-square overflow-hidden rounded border ${i === imgIdx ? "ring-2 ring-black" : ""} hover:cursor-pointer`}
+                onClick={() => setImgIdx(i)}
+              >
+                <img src={im.url} alt="" className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
       <div>
         <div className="mb-2 flex items-center gap-2">
@@ -89,7 +110,7 @@ export function PdpClient({
 
         <div className="mt-6">
           <p className="mb-2 text-sm font-medium">Size</p>
-          <SizeSelector onChange={setSize} />
+          <SizeSelector sizes={sizeOptions} onChange={setSize} />
         </div>
 
         <div className="mt-4 flex items-center gap-3">
@@ -123,7 +144,7 @@ export function PdpClient({
         <div className="mt-6 flex flex-col gap-3">
           <Button
             variant= "outline"
-            className="hover:bg-gray-500 hover:cursor-pointer"
+            className="hover:bg-gray-500/50 hover:cursor-pointer"
             onClick={() => {
               if (typeof available === "number" && available <= 0) {
                 toast.error("Selected size is out of stock")
@@ -164,9 +185,9 @@ export function PdpClient({
         </div>
 
         <div className="mt-8 space-y-2 text-sm text-muted-foreground">
+          {description ? <p>• {description}</p> : null}
+          {fabric ? <p>• Material: {String(fabric).toUpperCase()}</p> : null}
           <p>• Premium fabric with modern fit</p>
-          {description ? <p>{description}</p> : null}
-          {fabric ? <p>Material: {String(fabric).toUpperCase()}</p> : null}
           <p>• Stitched</p>
           <p>• Easy 7-day exchange</p>
         </div>

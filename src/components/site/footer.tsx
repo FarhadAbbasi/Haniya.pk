@@ -1,8 +1,11 @@
 import Link from "next/link"
+import VapiWidget from "./vapi-widget"
 
 export default function Footer() {
   return (
     <footer className="w-full border-t bg-gray-100">
+          {/* AI VOICE Assistant - Widget */}
+          {/* <VapiWidget /> */}
       <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
         <div className="grid grid-cols-1 gap-10 text-sm text-foreground/80 md:grid-cols-4">
           <div>
