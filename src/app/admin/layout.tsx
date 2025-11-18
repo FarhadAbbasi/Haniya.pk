@@ -2,6 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { AdminMobileNav } from "@/components/admin/admin-mobile-nav"
+import { BarChart3, FileText, LayoutDashboard, Package, Settings as SettingsIcon, ShoppingCart, Tags } from "lucide-react"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -33,13 +34,34 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="sticky top-0 h-screen p-4">
             <div className="mb-6 text-lg font-semibold">Admin</div>
             <nav className="space-y-1 text-sm">
-              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin">Dashboard</Link>
-              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/orders">Orders</Link>
-              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/analytics">Analytics</Link>
-              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/products">Products</Link>
-              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/categories">Categories</Link>
-              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/content">Content</Link>
-              <Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/settings">Settings</Link>
+              <Link href="/admin" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+              <Link href="/admin/orders" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <ShoppingCart className="h-4 w-4" />
+                <span>Orders</span>
+              </Link>
+              <Link href="/admin/analytics" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <BarChart3 className="h-4 w-4" />
+                <span>Analytics</span>
+              </Link>
+              <Link href="/admin/products" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <Package className="h-4 w-4" />
+                <span>Products</span>
+              </Link>
+              <Link href="/admin/categories" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <Tags className="h-4 w-4" />
+                <span>Categories</span>
+              </Link>
+              <Link href="/admin/content" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <FileText className="h-4 w-4" />
+                <span>Content</span>
+              </Link>
+              <Link href="/admin/settings" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <SettingsIcon className="h-4 w-4" />
+                <span>Settings</span>
+              </Link>
             </nav>
           </div>
         </aside>

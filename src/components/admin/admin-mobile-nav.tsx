@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { MenuIcon } from "lucide-react"
+import { MenuIcon, LayoutDashboard, ShoppingCart, BarChart3, Package, Tags, FileText, Settings as SettingsIcon } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import Link from "next/link"
 
@@ -15,18 +15,55 @@ export function AdminMobileNav() {
           Menu
         </button>
       </SheetTrigger>
-      <SheetContent side="left" className="inset-y-auto top-14 bottom-0 w-[85%] sm:max-w-xs rounded-r-lg">
+      <SheetContent side="left" className="inset-y-auto top-24 bottom-0 w-[60%] sm:w-80 rounded-r-lg p-0">
         <SheetHeader>
           <SheetTitle>Admin</SheetTitle>
         </SheetHeader>
-        <nav className="mt-4 space-y-1 text-sm">
-          <SheetClose asChild><Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin">Dashboard</Link></SheetClose>
-          <SheetClose asChild><Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/orders">Orders</Link></SheetClose>
-          <SheetClose asChild><Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/analytics">Analytics</Link></SheetClose>
-          <SheetClose asChild><Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/products">Products</Link></SheetClose>
-          <SheetClose asChild><Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/categories">Categories</Link></SheetClose>
-          <SheetClose asChild><Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/content">Content</Link></SheetClose>
-          <SheetClose asChild><Link className="block rounded px-2 py-1 hover:bg-neutral-100" href="/admin/settings">Settings</Link></SheetClose>
+        <nav className="mt-2 text-sm">
+          <div className="overflow-hidden rounded-md border divide-y bg-white">
+            <SheetClose asChild>
+              <Link className="flex items-center gap-2 px-4 py-3 hover:bg-neutral-50" href="/admin">
+                <LayoutDashboard className="h-4 w-4 text-neutral-600" />
+                <span>Dashboard</span>
+              </Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link className="flex items-center gap-2 px-4 py-3 hover:bg-neutral-50" href="/admin/orders">
+                <ShoppingCart className="h-4 w-4 text-neutral-600" />
+                <span>Orders</span>
+              </Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link className="flex items-center gap-2 px-4 py-3 hover:bg-neutral-50" href="/admin/analytics">
+                <BarChart3 className="h-4 w-4 text-neutral-600" />
+                <span>Analytics</span>
+              </Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link className="flex items-center gap-2 px-4 py-3 hover:bg-neutral-50" href="/admin/products">
+                <Package className="h-4 w-4 text-neutral-600" />
+                <span>Products</span>
+              </Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link className="flex items-center gap-2 px-4 py-3 hover:bg-neutral-50" href="/admin/categories">
+                <Tags className="h-4 w-4 text-neutral-600" />
+                <span>Categories</span>
+              </Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link className="flex items-center gap-2 px-4 py-3 hover:bg-neutral-50" href="/admin/content">
+                <FileText className="h-4 w-4 text-neutral-600" />
+                <span>Content</span>
+              </Link>
+            </SheetClose>
+            <SheetClose asChild>
+              <Link className="flex items-center gap-2 px-4 py-3 hover:bg-neutral-50" href="/admin/settings">
+                <SettingsIcon className="h-4 w-4 text-neutral-600" />
+                <span>Settings</span>
+              </Link>
+            </SheetClose>
+          </div>
         </nav>
       </SheetContent>
     </Sheet>

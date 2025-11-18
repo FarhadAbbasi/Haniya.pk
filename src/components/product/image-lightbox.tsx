@@ -19,6 +19,7 @@ export function ImageLightbox({ images, open, onOpenChange, startIndex = 0 }: {
     const [scale, setScale] = React.useState(1) // 1 = fitted image, >1 = zoomed
     const [tx, setTx] = React.useState(0)       // pan X (in px), relative to centered image
     const [ty, setTy] = React.useState(0)       // pan Y (in px)
+    const [isPinching, setIsPinching] = React.useState(false)
     // Gesture trackers
     const pinchRef = React.useRef<{ startDist: number; baseScale: number } | null>(null)
     const panRef = React.useRef<{ x: number; y: number } | null>(null)
@@ -50,6 +51,7 @@ export function ImageLightbox({ images, open, onOpenChange, startIndex = 0 }: {
             const dx = a.clientX - b.clientX
             const dy = a.clientY - b.clientY
             pinchRef.current = { startDist: Math.hypot(dx, dy), baseScale: scale }
+            setIsPinching(true)
         } else if (e.touches.length === 1 && scale > 1) {
             panRef.current = { x: e.touches[0].clientX - tx, y: e.touches[0].clientY - ty }
         }
@@ -100,6 +102,7 @@ export function ImageLightbox({ images, open, onOpenChange, startIndex = 0 }: {
         }
         pinchRef.current = null
         panRef.current = null
+        setIsPinching(false)
     }
 
     React.useEffect(() => {
@@ -149,7 +152,7 @@ export function ImageLightbox({ images, open, onOpenChange, startIndex = 0 }: {
                                         onTouchStart={onTouchStart}
                                         onTouchMove={onTouchMove}
                                         onTouchEnd={onTouchEnd}
-                                        className={`pointer-events-auto block max-h-full max-w-full object-contain select-none ${zoom || scale > 1 ? "cursor-grab" : ""} transition-transform duration-150`}
+                                        className={`pointer-events-auto block max-h-full max-w-full object-contain select-none ${zoom || scale > 1 ? "cursor-grab" : ""} transition-transform ${isPinching ? "duration-0" : "duration-150"}`}
                                         style={{
                                             touchAction: (zoom || scale > 1) ? "none" : "pan-y",
                                             transformOrigin: "center center",
