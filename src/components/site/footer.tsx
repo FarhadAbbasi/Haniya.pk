@@ -3,7 +3,7 @@ import Link from "next/link"
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t bg-gray-100">
+    <footer className="w-full border-t bg-slate-100">
           {/* AI VOICE Assistant - Widget */}
           {/* <VapiWidget /> */}
       <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">

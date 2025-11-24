@@ -6,6 +6,8 @@ import Header from "@/components/site/header";
 import Footer from "@/components/site/footer";
 import { Toaster } from "@/components/ui/sonner";
 import WhatsAppFab from "@/components/site/whatsapp-fab";
+import MarketingWelcomeModal from "@/components/site/marketing-welcome-modal";
+import NotificationsPrompt from "@/components/site/notifications-prompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +40,8 @@ export default function RootLayout({
           <Footer />
           <WhatsAppFab />
           <Toaster richColors closeButton position="top-right" />
+          <MarketingWelcomeModal />
+          <NotificationsPrompt />
         </ThemeProvider>
       </body>
     </html>

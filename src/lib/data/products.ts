@@ -13,6 +13,44 @@ export type DbProduct = {
   description?: string | null
 }
 
+export async function getRelatedByPrice(productId: string, band = 0.2, limit = 12) {
+  const supabase = createClient()
+  const { data: base } = await supabase
+    .from("products")
+    .select("id, price")
+    .eq("id", productId)
+    .maybeSingle()
+  if (!base?.price && base?.price !== 0) return []
+  const p = Number(base.price)
+  const min = Math.max(0, Math.floor(p * (1 - band)))
+  const max = Math.ceil(p * (1 + band))
+  const { data } = await supabase
+    .from("products")
+    .select("id, slug, title, price, compare_at_price, currency")
+    .neq("id", productId)
+    .gte("price", min)
+    .lte("price", max)
+    .order("created_at", { ascending: false })
+    .limit(limit)
+  const list = data || []
+  if (!list.length) return []
+  return attachFirstImages(list)
+}
+
+export async function getProductsByIds(ids: string[]) {
+  if (!ids || ids.length === 0) return []
+  const supabase = createClient()
+  const { data } = await supabase
+    .from("products")
+    .select("id, slug, title, price, compare_at_price, currency")
+    .in("id", ids)
+  if (!data) return []
+  const withImages = await attachFirstImages(data)
+  // preserve input order
+  const byId = new Map(withImages.map((p: any) => [String(p.id), p]))
+  return ids.map((i) => byId.get(String(i))).filter(Boolean)
+}
+
 export async function searchProducts(q: string, limit = 24) {
   const supabase = createClient()
   const pattern = `%${q}%`
@@ -44,6 +82,37 @@ export async function getProductByTitleLike(titleLike: string) {
     .eq("product_id", product.id)
     .order("sort", { ascending: true })
   return { ...(product as DbProduct), images: (images as DbImage[]) || [] }
+}
+
+export async function getRelatedProducts(productId: string, limit = 12) {
+  const supabase = createClient()
+  const { data: base } = await supabase
+    .from("products")
+    .select("id, category_id")
+    .eq("id", productId)
+    .maybeSingle()
+  let list: any[] = []
+  if (base?.category_id) {
+    const { data } = await supabase
+      .from("products")
+      .select("id, slug, title, price, compare_at_price, currency")
+      .eq("category_id", base.category_id)
+      .neq("id", productId)
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    list = data || []
+  }
+  if (!list || list.length === 0) {
+    const { data } = await supabase
+      .from("products")
+      .select("id, slug, title, price, compare_at_price, currency")
+      .neq("id", productId)
+      .order("created_at", { ascending: false })
+      .limit(limit)
+    list = data || []
+  }
+  if (!list.length) return []
+  return attachFirstImages(list)
 }
 
 export type DbImage = {
@@ -108,14 +177,14 @@ export async function getProductBySlug(slug: string) {
   const supabase = createClient()
   let { data: product } = await supabase
     .from("products")
-    .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description")
+    .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description, category_id")
     .eq("slug", slug)
     .maybeSingle()
   if (!product) {
     // Fallback: try ilike match on slug
     const { data: approx } = await supabase
       .from("products")
-      .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description")
+      .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description, category_id")
       .ilike("slug", `%${slug}%`)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -137,7 +206,7 @@ export async function getProductById(id: string) {
   const supabase = createClient()
   const { data: product } = await supabase
     .from("products")
-    .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description")
+    .select("id, slug, title, price, compare_at_price, currency, fabric, is_sale, description, category_id")
     .eq("id", id)
     .maybeSingle()
   if (!product) return null

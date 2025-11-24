@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic"
 import { PdpClient } from "@/components/product/pdp-client"
-import { getProductBySlug, getProductById, getProductByTitleLike } from "@/lib/data/products"
+import { RelatedProducts } from "@/components/product/related-products"
+import { RecentlyViewed } from "@/components/product/recently-viewed"
+import { getProductBySlug, getProductById, getProductByTitleLike, getRelatedProducts, getRelatedByPrice } from "@/lib/data/products"
 import { notFound } from "next/navigation"
 
 export default async function ProductPage({
@@ -21,6 +23,9 @@ export default async function ProductPage({
   }
   if (!product) return notFound()
 
+  const related = await getRelatedProducts(product.id, 12)
+  const relatedByPrice = await getRelatedByPrice(product.id, 0.2, 12)
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
       <PdpClient
@@ -34,6 +39,10 @@ export default async function ProductPage({
         description={(product as any).description}
         images={product.images}
       />
+
+      <RelatedProducts items={related as any} heading="You may also like" />
+      <RelatedProducts items={relatedByPrice as any} heading="Similar price range" />
+      <RecentlyViewed currentId={product.id} heading="Recently viewed" />
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useCart } from "@/store/cart"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Scale, ScaleIcon, ShoppingCartIcon } from "lucide-react"
+import { Scale, ScaleIcon, ShoppingCartIcon, Share2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import useEmblaCarousel from "embla-carousel-react"
 import { ImageLightbox } from "@/components/product/image-lightbox"
@@ -82,7 +82,7 @@ export function PdpClient({
   const sizeOptions = sizeOrder.filter((s) => Object.prototype.hasOwnProperty.call(stockBySize, s))
 
   return (
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
       <div>
         <div className="overflow-hidden rounded-lg border bg-white" ref={emblaRef}>
           <div className="flex" onClick={() => mainImg && setOpenLb(true)}>
@@ -116,19 +116,39 @@ export function PdpClient({
         ) : null}
       </div>
       <div>
-        <div className="mb-2 flex items-center gap-2">
+        <div className="mb-3 flex items-center gap-2">
           {isSale ? (
             <span className="inline-block rounded bg-red-600 px-2 py-0.5 text-xs font-medium text-white">Sale</span>
           ) : null}
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-2xl font-bol font-medium uppercase tracking-wid tracking-tight text-black">{title}</h1>
+          <button
+            aria-label="Share"
+            className="inline-flex items-center gap-2 rounded border px-3 py-2 text-sm hover:bg-neutral-100"
+            onClick={async () => {
+              const url = typeof window !== 'undefined' ? window.location.href : ''
+              try {
+                if (typeof navigator !== 'undefined' && (navigator as any).share) {
+                  await (navigator as any).share({ title, url })
+                } else if (typeof navigator !== 'undefined' && (navigator.clipboard?.writeText)) {
+                  await navigator.clipboard.writeText(url)
+                  toast.success('Link copied to clipboard')
+                }
+              } catch {}
+            }}
+          >
+            <Share2 className="h-4 w-4" />
+            Share
+          </button>
+        </div>
         <div className="mt-2 flex items-baseline gap-2">
-          <p className="text-xl font-medium">{currency} {price.toLocaleString()}</p>
+          <p className="text-2xl font-semibold text-black/70">{currency} {price.toLocaleString()}</p>
           {compareAtPrice ? (
-            <p className="text-base text-muted-foreground line-through">{currency} {Number(compareAtPrice).toLocaleString()}</p>
+            <p className="text-sm text-neutral-500 line-through">{currency} {Number(compareAtPrice).toLocaleString()}</p>
           ) : null}
         </div>
-        <div className="mt-1 text-xs text-muted-foreground">Tax included. Shipping calculated at checkout.</div>
+        <div className="mt-1 text-xs text-neutral-500">Tax included. Shipping calculated at checkout.</div>
 
         <div className="mt-6">
           <p className="mb-2 text-sm font-medium">Size</p>
@@ -153,20 +173,20 @@ export function PdpClient({
         {typeof available === "number" && (
           <div className="mt-2 text-xs">
             {available > 0 ? (
-              <span className="text-emerald-700">In stock: {available}</span>
+              <span className="text-emerald-700">In stock</span>
             ) : (
               <span className="text-red-600 ">Out of stock</span>
             )}
           </div>
         )}
-        <div className="flex justify-end" >
-          <Button variant="outline"> Size Chart</Button>
+        <div className="flex justify-end">
+          <Button variant="outline" className="border-black text-black"> Size Chart</Button>
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
           <Button
             variant= "outline"
-            className="hover:bg-gray-500/50 hover:cursor-pointer"
+            className="h-12 hover:bg-neutral-100 hover:cursor-pointer border-black  text-black hover:text-black"
             onClick={() => {
               if (typeof available === "number" && available <= 0) {
                 toast.error("Selected size is out of stock")
@@ -185,7 +205,7 @@ export function PdpClient({
           </Button>
           <Button
             variant="default"
-            className="hover:scale-105 hover:cursor-pointer"
+            className="h-12 hover:scale-105 hover:cursor-pointer bg-black hover:bg-black text-white"
             onClick={() => {
               if (typeof available === "number" && available <= 0) {
                 toast.error("Selected size is out of stock")
@@ -201,17 +221,42 @@ export function PdpClient({
               router.push("/checkout");
             }}
           >
-            Buy now
+            BUY NOW
           </Button>
-          {/* <Button variant="ghost">Size Chart</Button> */}
         </div>
 
-        <div className="mt-8 space-y-2 text-sm text-muted-foreground">
-          {description ? <p>• {description}</p> : null}
-          {fabric ? <p>• Material: {String(fabric).toUpperCase()}</p> : null}
-          <p>• Premium fabric with modern fit</p>
-          <p>• Stitched</p>
-          <p>• Easy 7-day exchange</p>
+        {/* Collapsible details */}
+        <div className="mt-8 space-y-3 text-sm">
+          <details className="group rounded-lg border bg-white p-3">
+            <summary className="flex cursor-pointer list-none items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-neutral-800">Description</span>
+              <span className="text-lg leading-none text-neutral-600 group-open:rotate-45 transition-transform">+</span>
+            </summary>
+            <div className="mt-2 text-neutral-700">
+              {description ? <p>{description}</p> : <p>Premium quality with modern fit and finishing.</p>}
+            </div>
+          </details>
+
+          <details className="group rounded-lg border bg-white p-3">
+            <summary className="flex cursor-pointer list-none items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-neutral-800">Delivery Info</span>
+              <span className="text-lg leading-none text-neutral-600 group-open:rotate-45 transition-transform">+</span>
+            </summary>
+            <div className="mt-2 text-neutral-700">
+              <p>Standard delivery within 3–7 business days nationwide.</p>
+              <p className="mt-1">Cash on Delivery available.</p>
+            </div>
+          </details>
+
+          <details className="group rounded-lg border bg-white p-3">
+            <summary className="flex cursor-pointer list-none items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-neutral-800">Exchange Policy</span>
+              <span className="text-lg leading-none text-neutral-600 group-open:rotate-45 transition-transform">+</span>
+            </summary>
+            <div className="mt-2 text-neutral-700">
+              <p>Easy 7-day exchange on unworn items with tags attached.</p>
+            </div>
+          </details>
         </div>
       </div>
     </div>
