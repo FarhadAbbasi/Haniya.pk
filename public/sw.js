@@ -1,4 +1,4 @@
-const CACHE_NAME = 'haniya-cache-v1'
+const CACHE_NAME = 'haniya-cache-v2'
 const SHELL = [
   '/',
   '/manifest.webmanifest',
@@ -30,21 +30,41 @@ self.addEventListener('fetch', (event) => {
   // only same-origin
   if (url.origin !== self.location.origin) return
 
-  // cache-first for navigations and static assets
+  // network-first for navigations; stale-while-revalidate for static assets
   const isNav = req.mode === 'navigate'
   const isStatic = /\.(?:png|jpg|jpeg|gif|webp|svg|css|js|woff2?)$/i.test(url.pathname)
   if (!isNav && !isStatic) return
 
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached
-      return fetch(req).then((res) => {
-        const copy = res.clone()
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => null)
-        return res
-      }).catch(() => cached || new Response('', { status: 504 }))
-    })
-  )
+  if (isNav) {
+    // Network-first for HTML/navigation to avoid serving stale ISR pages
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone()
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => null)
+          return res
+        })
+        .catch(async () => (await caches.match(req)) || new Response('', { status: 504 }))
+    )
+    return
+  }
+
+  if (isStatic) {
+    // Stale-while-revalidate for static assets
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        const fetchPromise = fetch(req)
+          .then((res) => {
+            const copy = res.clone()
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => null)
+            return res
+          })
+          .catch(() => null)
+        return cached || fetchPromise || new Response('', { status: 504 })
+      })
+    )
+    return
+  }
 })
 
 self.addEventListener('push', (event) => {

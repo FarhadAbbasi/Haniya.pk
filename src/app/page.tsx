@@ -75,7 +75,7 @@ async function CollectionTiles() {
     <div className="grid grid-cols-1 gap-3 md:grid-cols-4 md:gap-4">
       {cats.map((c, i) => {
         const lead: any = leads[i]
-        let image =  c.featured_image_url || undefined
+        let image = c.featured_image_url || undefined
         if (!image) image = (c.featured_image_id && featuredById.get(c.featured_image_id)) || undefined
         if (!image) image = lead?.image as string | undefined
         return (
@@ -103,21 +103,26 @@ export default async function Home() {
   const products = await getLatestProducts(4)
 
   return (
-    <div className="flex min-h-[calc(100dvh-64px)] flex-col">
+    <div className="flex flex-col">
       {/* Full-bleed hero */}
-      <section className="relative isolate w-full">
+      <section className="relative isolate w-full min-h-[60dvh] md:min-h-[70dvh]">
         {/* Background gradient fallback */}
         <div className="absolute inset-0 -z-20 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/40" />
         {/* Optional background image (place /public/hero.jpg to activate) */}
         <div
-          className="absolute inset-0 -z-10 bg-cover bg-no-repeat bg-top md:bg-cover"
-          style={{ backgroundImage: "url('/Hero.jpg'), url('/hero.jpg')" }}
+          className="absolute inset-0 -z-10 bg-cover bg-no-repeat bg-top md:hidden"
+          style={{ backgroundImage: "url('/Hero-Mob.jpg')" }}
         />
-        <div className="mx-auto flex min-h-[35vh]  w-full max-w-7xl items-center px-4 py-12 md:min-h-[70vh] md:py-16">
-          <div className="max-w-2xl space-y-5 md:space-y-5">
+        <div
+          className="absolute inset-0 -z-10 hidden md:block bg-cover bg-no-repeat bg-cover"
+          style={{ backgroundImage: "url('/Hero-Desk.jpg')" }}
+        />
+        <div className="items-end justify-start min-h-[60dvh] mx-auto flex w-full max-w-7xl items-center px-4 py-12 md:py-16">
+          <div className="align-center justify-between min-h-[50dvh] flex flex-col max-w-2xl space-y-5 md:space-y-5">
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/80">New Season</p>
-            <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
+            <h1 className="hidden md:block text-balance text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
               Luxury Lawn & Winter Collections
+
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
             </h1>
             <p className="max-w-prose hidden md:block text-sm md:text-base text-foreground/80">

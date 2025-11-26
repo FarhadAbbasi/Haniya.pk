@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { ShoppingBag, User, Search, Menu, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchInline } from "@/components/search/search-inline"
@@ -47,8 +48,9 @@ export default async function Header() {
   return (
     <header className="w-full border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-4">
-        <Link href="/" className="text-2xl font-light tracking-tight">
-          HANIYA.PK
+        <Link href="/" className="h-24 w-24 rounded rounded-xl inline-flex items-center justify-center" aria-label="HANIYA.PK">
+          <Image src="/logo.png" alt="HANIYA.PK" width={80} height={80} className="h-24 w-24 object-contain" priority />
+          {/* <Image src="/logo.jpg" alt="HANIYA.PK" width={80} height={80} className="h-24 w-24  object-contain" priority /> */}
         </Link>
         <nav className="hidden md:block">
           <ul className="flex items-center gap-2">
