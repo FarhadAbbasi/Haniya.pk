@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
-import { CategoryRowForm, DeleteCategoryForm } from "@/components/admin/category-row-client"
+import { CategoryRowForm } from "@/components/admin/category-row-client"
 import { CategoryCreateForm } from "@/components/admin/category-create-form-client"
 
 export default async function AdminCategoriesPage() {
