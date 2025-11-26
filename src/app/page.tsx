@@ -10,7 +10,7 @@ function ProductCard({ href, title, price, compareAtPrice, image }: { href: stri
   return (
     <Link href={href} className="group overflow-hidden rounded-lg border bg-white">
       {image ? (
-        <img src={image} alt={title} className="aspect-[3/4] w-full object-contain bg-white" />
+        <img src={image} alt={title} className="aspect-[3/4] w-full object-contain bg-white transition-transform duration-300 ease-out group-hover:scale-105" />
       ) : (
         <div className="aspect-[3/4] w-full bg-gradient-to-b from-muted to-muted/60" />
       )}
@@ -81,7 +81,7 @@ async function CollectionTiles() {
         return (
           <Link key={c.id} href={routeFor(c)} className="group relative overflow-hidden rounded-lg border bg-white">
             {image ? (
-              <img src={image} alt={c.name} className="aspect-[3/4] w-full object-contain bg-white" />
+              <img src={image} alt={c.name} className="aspect-[3/4] w-full object-contain bg-white transition-transform duration-300 ease-out group-hover:scale-105" />
             ) : (
               <div className="aspect-[3/4] w-full bg-muted" />
             )}

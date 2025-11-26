@@ -79,7 +79,7 @@ export default async function CategoryPage({ params }: Props) {
             return (
               <Link key={p.id} href={`/p/${p.slug}`} className="group relative overflow-hidden rounded-lg border bg-white">
                 {image ? (
-                  <img src={image} alt={p.title} className="aspect-[3/4] w-full object-cover" />
+                  <img src={image} alt={p.title} className="aspect-[3/4] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105" />
                 ) : (
                   <div className="aspect-[3/4] w-full bg-muted" />
                 )}

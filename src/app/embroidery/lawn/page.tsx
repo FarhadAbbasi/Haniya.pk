@@ -20,9 +20,9 @@ export default async function EmbroideryLawnPage({
       <CatalogFilters />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {products.map((p) => (
-          <Link href={`/p/${(p as any).slug}`} key={p.id} className="relative overflow-hidden rounded-lg border bg-white">
+          <Link href={`/p/${(p as any).slug}`} key={p.id} className="group relative overflow-hidden rounded-lg border bg-white">
             {(p as any).image ? (
-              <img src={(p as any).image} alt={p.title} className="aspect-[3/4] w-full object-contain bg-white" />
+              <img src={(p as any).image} alt={p.title} className="aspect-[3/4] w-full object-contain bg-white transition-transform duration-300 ease-out group-hover:scale-105" />
             ) : (
               <div className="aspect-[3/4] w-full bg-muted" />
             )}
