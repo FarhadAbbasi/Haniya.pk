@@ -10,13 +10,16 @@ const KEY = "seen_marketing_welcome_v2"
 export default function MarketingWelcomeModal() {
   const [open, setOpen] = React.useState(false)
   const [email, setEmail] = React.useState("")
-  const [image, setImage] = React.useState<string | undefined>(undefined)
+  const [image, setImage] = React.useState<string | undefined>('https://formsv2.soundestlink.com/cdn-cgi/image/fit=scale-down,width=1200/forms/67e67b6b58d210cfd7f04456')
   const pathname = usePathname()
 
   React.useEffect(() => {
-    // Do not show on PDP
-    if (pathname?.startsWith("/p/")) return
+    // Only show on homepage
+    if (pathname !== "/") return
     try {
+      // If user already subscribed, suppress
+      const subscribed = localStorage.getItem("newsletter_subscribed")
+      if (subscribed === "1" || document.cookie.includes("newsletter_subscribed=1")) return
       const seen = localStorage.getItem(KEY)
       const shouldOpen = (() => {
         if (!seen) return true
@@ -32,14 +35,14 @@ export default function MarketingWelcomeModal() {
     } catch {}
   }, [pathname])
 
-  React.useEffect(() => {
-    if (!open) return
-    // Fetch a latest product image for visual appeal
-    fetch("/api/products/latest")
-      .then((r) => r.json())
-      .then((j) => setImage(j?.item?.image))
-      .catch(() => {})
-  }, [open])
+  // React.useEffect(() => {
+  //   if (!open) return
+  //   // Fetch a latest product image for visual appeal
+  //   fetch("/api/products/latest")
+  //     .then((r) => r.json())
+  //     .then((j) => setImage(j?.item?.image))
+  //     .catch(() => {})
+  // }, [open])
 
   function closeAndRemember() {
     try { localStorage.setItem(KEY, String(Date.now())) } catch {}
@@ -53,7 +56,12 @@ export default function MarketingWelcomeModal() {
       return
     }
     try {
-      // Optionally send to backend here
+      await fetch("/api/marketing/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+      try { localStorage.setItem("newsletter_subscribed", "1"); document.cookie = "newsletter_subscribed=1; path=/; max-age=31536000" } catch {}
       toast.success("Thanks! You get 5% off on your first order")
       closeAndRemember()
     } catch {
@@ -65,33 +73,31 @@ export default function MarketingWelcomeModal() {
     <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : closeAndRemember())}>
       <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
         <DialogTitle className="sr-only">Welcome</DialogTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-2">
+        <div className="grid grid-cols-1  sm:grid-cols-2">
           <div className="relative hidden sm:block">
-            <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700" />
+            {/* <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-700" /> */}
             {image ? (
-              <img src={image} alt="Featured" className="relative z-10 h-full w-full object-cover mix-blend-overlay opacity-90" />
+              <img src={image} alt="Featured" className="relative z-10 h-full w-full object-cover opacity-100" />
             ) : (
               <div className="relative z-10 h-full w-full" />
             )}
           </div>
-          <div className="p-6 sm:p-8">
-            <div className="space-y-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">Exclusive Offer</div>
-              <h3 className="text-2xl font-bold uppercase leading-tight text-black">Discover the latest Winter Collection</h3>
-              <p className="text-sm text-neutral-700">Refresh your style and be the first to hear about new discounts and offers.</p>
-              <div className="inline-block rounded-md bg-black px-3 py-1.5 text-sm font-semibold text-white">GET 5% OFF</div>
+          <div className="p-8 sm:p-8 flex flex-col gap-6 bg-primary/20">
+            <div className="mt-10 space-y-5 align-center items-center flex flex-col">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-600">Exclusive Offer</div>
+              <h3 className="text-2xl font-bold uppercase leading-tight text-center text-neutral-600">Discover the latest Winter Collection</h3>
+              <p className="text-sm text-center text-neutral-500">Refresh your style and be the first to hear about new discounts and offers.</p>
             </div>
-            <form onSubmit={onSubmit} className="mt-5 flex gap-2">
+            <form onSubmit={onSubmit} className="my-5 flex flex-col gap-4">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ENTER YOUR EMAIL"
-                className="flex-1 rounded-md border px-3 py-2 text-sm uppercase tracking-wide outline-none focus:ring-2 focus:ring-black"
+                className="flex-1 rounded-md border px-3 py-3 text-sm tracking-wide outline-none focus:ring-1 focus:ring-slate-400"
               />
-              <button type="submit" className="rounded-md bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-black/90">Subscribe</button>
+              <button type="submit" className="rounded-md bg-black/90 px-4 py-4 text-sm font-semibold text-white hover:scale-102 hover:cursor-pointer hover:bg-black transition-all">GET 5% OFF</button>
             </form>
-            <button onClick={closeAndRemember} className="mt-3 w-full rounded-md border px-4 py-2 text-sm">No thanks</button>
           </div>
         </div>
       </DialogContent>

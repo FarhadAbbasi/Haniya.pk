@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createRouteClient } from "@/lib/supabase/route"
+export const runtime = "nodejs"
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -21,9 +22,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       .maybeSingle()
     if (!adminRow) return NextResponse.redirect(signInUrl)
 
-    const bodyText = await req.text()
-    const paramsBody = new URLSearchParams(bodyText)
-    const method = (paramsBody.get("_method") || "").toUpperCase()
+    const contentType = req.headers.get("content-type") || ""
+    const isMultipart = contentType.includes("multipart/form-data")
+    let paramsBody: URLSearchParams | null = null
+    let form: FormData | null = null
+    if (isMultipart) {
+      form = await req.formData()
+    } else {
+      const bodyText = await req.text()
+      paramsBody = new URLSearchParams(bodyText)
+    }
+    const getVal = (k: string) => (form ? String(form.get(k) || "") : String(paramsBody!.get(k) || ""))
+    const method = (getVal("_method") || "").toUpperCase()
 
     if (method === "DELETE") {
       const del = await supabase.from("products").delete().eq("id", id)
@@ -31,30 +41,46 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return redirectRes
     }
 
-    const title = (paramsBody.get("title") || "").trim()
-    const priceVal = paramsBody.get("price")
-    const currency = (paramsBody.get("currency") || "PKR").trim()
-    const is_sale = paramsBody.get("is_sale") === "on"
-    const is_new = paramsBody.get("is_new") === "on"
+    const title = getVal("title").trim()
+    const priceVal = getVal("price")
+    const currency = (getVal("currency") || "PKR").trim()
+    const is_sale = getVal("is_sale") === "on"
+    const is_new = getVal("is_new") === "on"
     const price = priceVal != null && priceVal !== "" ? Number(priceVal) : null
-    const compareAtVal = paramsBody.get("compare_at_price")
+    const compareAtVal = getVal("compare_at_price")
     const compare_at_price = compareAtVal != null && compareAtVal !== "" ? Number(compareAtVal) : null
-    const fabric = (paramsBody.get("fabric") || "").trim() || null
-    const description = (paramsBody.get("description") || "").trim() || null
+    const fabric = (getVal("fabric") || "").trim() || null
+    const description = (getVal("description") || "").trim() || null
 
     await supabase
       .from("products")
       .update({ title, price, compare_at_price, currency, is_sale, is_new, fabric, description })
       .eq("id", id)
 
-    // Images: replace existing with supplied image1..image6
+    // Images: replace existing with uploaded files or provided URLs
+    const bucket = "product-images"
     const imgs: Array<{ url: string; sort: number; product_id: string }> = []
     for (let i = 1; i <= 6; i++) {
-      const key = `image${i}`
-      const url = (paramsBody.get(key) || "").trim()
-      if (url) imgs.push({ url, sort: i, product_id: String(id) })
+      const fileKey = `file${i}`
+      const urlKey = `image${i}`
+      let publicUrl: string | null = null
+      const maybeFile = form ? form.get(fileKey) : null
+      if (maybeFile && maybeFile instanceof File && maybeFile.size > 0) {
+        const file = maybeFile as File
+        const ext = file.name.split('.').pop() || 'jpg'
+        const path = `product/${String(id)}/${i}-${Date.now()}.${ext}`
+        const { error: upErr } = await (supabase as any).storage.from(bucket).upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type || 'image/jpeg' })
+        if (!upErr) {
+          const { data: pub } = (supabase as any).storage.from(bucket).getPublicUrl(path)
+          publicUrl = pub?.publicUrl || null
+        }
+      }
+      if (!publicUrl) {
+        const url = (form ? String(form.get(urlKey) || "") : String(paramsBody!.get(urlKey) || "")).trim()
+        if (url) publicUrl = url
+      }
+      if (publicUrl) imgs.push({ url: publicUrl, sort: i, product_id: String(id) })
     }
-    // Delete old and insert new (if provided)
     await supabase.from("product_images").delete().eq("product_id", id)
     if (imgs.length) await supabase.from("product_images").insert(imgs)
 

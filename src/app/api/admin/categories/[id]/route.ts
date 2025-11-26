@@ -24,7 +24,48 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (method === "DELETE") {
       const { error } = await supabase.from("categories").delete().eq("id", id)
       if (error) return jsonWithCookies(res, { error: error.message }, { status: 500 })
-      return jsonWithCookies(res, { ok: true })
+      const reqUrl = new URL(req.url)
+      const back = new URL("/admin/categories", reqUrl.origin)
+      const redirectRes = NextResponse.redirect(back)
+      const setCookies = res.headers.getSetCookie?.() || []
+      for (const c of setCookies) redirectRes.headers.append("Set-Cookie", c)
+      return redirectRes
+    }
+    if (method === "PATCH") {
+      const update: any = {}
+      // Only include each field if the form actually sent that key
+      if (paramsBody.has("name")) {
+        const name = String(paramsBody.get("name") || "").trim()
+        if (name.length) update.name = name
+      }
+      if (paramsBody.has("slug")) {
+        const slug = String(paramsBody.get("slug") || "").trim()
+        if (slug.length) update.slug = slug
+      }
+      // Checkbox only posts when checked; use a presence flag to know if the field was on the form
+      if (paramsBody.has("is_featured_present")) {
+        update.is_featured = paramsBody.get("is_featured") === "on"
+      }
+      if (paramsBody.has("position")) {
+        const positionRaw = paramsBody.get("position")
+        update.position = positionRaw && String(positionRaw).length ? Number(positionRaw) : null
+      }
+      if (paramsBody.has("featured_image_id")) {
+        const s = String(paramsBody.get("featured_image_id") || "").trim()
+        update.featured_image_id = s.length ? s : null
+      }
+      if (paramsBody.has("featured_image_url")) {
+        const su = String(paramsBody.get("featured_image_url") || "").trim()
+        update.featured_image_url = su.length ? su : null
+      }
+      const { error } = await supabase.from("categories").update(update).eq("id", id)
+      if (error) return jsonWithCookies(res, { error: error.message }, { status: 500 })
+      const reqUrl = new URL(req.url)
+      const back = new URL("/admin/categories", reqUrl.origin)
+      const redirectRes = NextResponse.redirect(back)
+      const setCookies = res.headers.getSetCookie?.() || []
+      for (const c of setCookies) redirectRes.headers.append("Set-Cookie", c)
+      return redirectRes
     }
 
     return jsonWithCookies(res, { error: "unsupported" }, { status: 400 })
@@ -33,7 +74,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 }
 
-export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const res = new NextResponse()
   try {
     const { id } = await ctx.params
@@ -51,7 +92,12 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string 
 
     const { error } = await supabase.from("categories").delete().eq("id", id)
     if (error) return jsonWithCookies(res, { error: error.message }, { status: 500 })
-    return jsonWithCookies(res, { ok: true })
+    const reqUrl = new URL(req.url)
+    const back = new URL("/admin/categories", reqUrl.origin)
+    const redirectRes = NextResponse.redirect(back)
+    const setCookies = res.headers.getSetCookie?.() || []
+    for (const c of setCookies) redirectRes.headers.append("Set-Cookie", c)
+    return redirectRes
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "unexpected" }, { status: 500 })
   }

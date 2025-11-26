@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import WhatsAppFab from "@/components/site/whatsapp-fab";
 import MarketingWelcomeModal from "@/components/site/marketing-welcome-modal";
 import NotificationsPrompt from "@/components/site/notifications-prompt";
+import PushInit from "@/components/site/push-init";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="icon" href="/icon-192.png" sizes="192x192" />
+        <link rel="icon" href="/icon-512.png" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           <Header />
@@ -42,6 +50,7 @@ export default function RootLayout({
           <Toaster richColors closeButton position="top-right" />
           <MarketingWelcomeModal />
           <NotificationsPrompt />
+          <PushInit />
         </ThemeProvider>
       </body>
     </html>

@@ -1,16 +1,49 @@
 import Link from "next/link"
-import { ShoppingBag, User, Search, ChevronDown, Menu } from "lucide-react"
+import { ShoppingBag, User, Search, Menu, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { SearchInline } from "@/components/search/search-inline"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { createClient } from "@/lib/supabase/server"
 
-export default function Header() {
+export default async function Header() {
+  const supabase = createClient()
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name, slug")
+    .order("name", { ascending: true })
+  const cats = (categories || []).map((c: any) => ({ id: String(c.id), name: String(c.name), slug: String(c.slug) }))
+
+  // Grouping: New Arrival, extras, Printed (lawn, winter), Embroidery (lawn, winter), Sale
+  const lower = (s: string) => s.toLowerCase()
+  const isNew = (n: string) => /new\s*arrival/.test(lower(n))
+  const isSale = (n: string) => /sale/.test(lower(n))
+  const isPrintedLawn = (n: string) => /printed/.test(lower(n)) && /lawn/.test(lower(n))
+  const isPrintedWinter = (n: string) => /printed/.test(lower(n)) && /winter/.test(lower(n))
+  const isEmbLawn = (n: string) => /embroi?d/.test(lower(n)) && /lawn/.test(lower(n))
+  const isEmbWinter = (n: string) => /embroi?d/.test(lower(n)) && /winter/.test(lower(n))
+
+  const pick = (pred: (n: string) => boolean) => cats.find(c => pred(c.name))
+  const newCat = pick(isNew)
+  const saleCat = pick(isSale)
+  const printedLawn = pick(isPrintedLawn)
+  const printedWinter = pick(isPrintedWinter)
+  const embLawn = pick(isEmbLawn)
+  const embWinter = pick(isEmbWinter)
+  const usedIds = new Set([newCat?.id, saleCat?.id, printedLawn?.id, printedWinter?.id, embLawn?.id, embWinter?.id].filter(Boolean) as string[])
+  const extras = cats.filter(c => !usedIds.has(c.id)).sort((a,b) => a.name.localeCompare(b.name))
+
+  const routeFor = (c: { name: string; slug: string }) => {
+    const n = lower(c.name)
+    if (isNew(c.name)) return "/new"
+    if (isSale(c.name)) return "/sale"
+    if (isPrintedLawn(c.name)) return "/printed/lawn"
+    if (isPrintedWinter(c.name)) return "/printed/winter"
+    if (isEmbLawn(c.name)) return "/embroidery/lawn"
+    if (isEmbWinter(c.name)) return "/embroidery/winter"
+    return `/category/${c.slug}`
+  }
+
   return (
     <header className="w-full border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-4">
@@ -19,46 +52,67 @@ export default function Header() {
         </Link>
         <nav className="hidden md:block">
           <ul className="flex items-center gap-2">
-            <li>
-              <Link href="/new" className="px-3 py-2 text-sm  text-foreground/80 transition-colors hover:text-foreground">
-                New Arrivals
-              </Link>
-            </li>
-            <li>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground cursor-pointer inline-flex items-center gap-1 data-[state=open]:underline">
-                  Printed <ChevronDown className="h-3.5 w-3.5" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
-                    <Link href="/printed/lawn">Lawn</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
-                    <Link href="/printed/winter">Winter Collection</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </li>
-            <li>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground cursor-pointer inline-flex items-center gap-1 data-[state=open]:underline">
-                  Embroidery <ChevronDown className="h-3.5 w-3.5" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
-                    <Link href="/embroidery/lawn">Lawn</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
-                    <Link href="/embroidery/winter">Winter Collection</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </li>
-            <li>
-              <Link href="/sale" className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground">
-                Sale
-              </Link>
-            </li>
+            {newCat ? (
+              <li key={newCat.id}>
+                <Link href={routeFor(newCat)} className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground">New Arrivals</Link>
+              </li>
+            ) : null}
+
+            {extras.map((c) => (
+              <li key={c.id}>
+                <Link href={routeFor(c)} className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground">{c.name}</Link>
+              </li>
+            ))}
+
+            {(printedLawn || printedWinter) ? (
+              <li>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground cursor-pointer inline-flex items-center gap-1 data-[state=open]:underline">
+                    Printed <ChevronDown className="h-3.5 w-3.5" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {printedLawn ? (
+                      <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
+                        <Link href={routeFor(printedLawn)}>Lawn</Link>
+                      </DropdownMenuItem>
+                    ) : null}
+                    {printedWinter ? (
+                      <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
+                        <Link href={routeFor(printedWinter)}>Winter Collection</Link>
+                      </DropdownMenuItem>
+                    ) : null}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </li>
+            ) : null}
+
+            {(embLawn || embWinter) ? (
+              <li>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground cursor-pointer inline-flex items-center gap-1 data-[state=open]:underline">
+                    Embroidery <ChevronDown className="h-3.5 w-3.5" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {embLawn ? (
+                      <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
+                        <Link href={routeFor(embLawn)}>Lawn</Link>
+                      </DropdownMenuItem>
+                    ) : null}
+                    {embWinter ? (
+                      <DropdownMenuItem asChild className="hover:underline focus:underline hover:bg-transparent focus:bg-transparent hover:text-foreground focus:text-foreground">
+                        <Link href={routeFor(embWinter)}>Winter Collection</Link>
+                      </DropdownMenuItem>
+                    ) : null}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </li>
+            ) : null}
+
+            {saleCat ? (
+              <li key={saleCat.id}>
+                <Link href={routeFor(saleCat)} className="px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground">Sale</Link>
+              </li>
+            ) : null}
           </ul>
         </nav>
         <div className="flex items-center gap-2">
@@ -78,7 +132,7 @@ export default function Header() {
             </Link>
           </Button>
         </div>
-                {/* Mobile menu */}
+        {/* Mobile menu */}
         <div className="flex items-center gap-2 md:hidden">
           <Sheet>
             <SheetTrigger asChild>
@@ -91,23 +145,44 @@ export default function Header() {
                 <Link href="/" className="text-xl font-light tracking-tight">HANIYA.PK</Link>
               </div>
               <div className="p-4 space-y-1 text-sm">
-                <Link href="/new" className="block px-2 py-2">New Arrivals</Link>
-                <div className="mt-2 px-2 py-2 font-medium">Printed</div>
-                <div className="ml-2 space-y-1">
-                  <Link href="/printed/lawn" className="block px-2 py-1">Lawn</Link>
-                  <Link href="/printed/winter" className="block px-2 py-1">Winter Collection</Link>
-                </div>
-                <div className="mt-3 px-2 py-2 font-medium">Embroidery</div>
-                <div className="ml-2 space-y-1">
-                  <Link href="/embroidery/lawn" className="block px-2 py-1">Lawn</Link>
-                  <Link href="/embroidery/winter" className="block px-2 py-1">Winter Collection</Link>
-                </div>
-                <Link href="/sale" className="block px-2 py-2 mt-3">Sale</Link>
+                {newCat ? (
+                  <Link href={routeFor(newCat)} className="block px-2 py-2">New Arrivals</Link>
+                ) : null}
+                {extras.length ? (
+                  <div>
+                    <div className="mt-2 px-2 py-2 font-medium">Categories</div>
+                    <div className="ml-2 space-y-1">
+                      {extras.map((c) => (
+                        <Link key={c.id} href={routeFor(c)} className="block px-2 py-1">{c.name}</Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                {(printedLawn || printedWinter) ? (
+                  <div>
+                    <div className="mt-3 px-2 py-2 font-medium">Printed</div>
+                    <div className="ml-2 space-y-1">
+                      {printedLawn ? (<Link href={routeFor(printedLawn)} className="block px-2 py-1">Lawn</Link>) : null}
+                      {printedWinter ? (<Link href={routeFor(printedWinter)} className="block px-2 py-1">Winter Collection</Link>) : null}
+                    </div>
+                  </div>
+                ) : null}
+                {(embLawn || embWinter) ? (
+                  <div>
+                    <div className="mt-3 px-2 py-2 font-medium">Embroidery</div>
+                    <div className="ml-2 space-y-1">
+                      {embLawn ? (<Link href={routeFor(embLawn)} className="block px-2 py-1">Lawn</Link>) : null}
+                      {embWinter ? (<Link href={routeFor(embWinter)} className="block px-2 py-1">Winter Collection</Link>) : null}
+                    </div>
+                  </div>
+                ) : null}
+                {saleCat ? (
+                  <Link href={routeFor(saleCat)} className="block px-2 py-2 mt-3">Sale</Link>
+                ) : null}
               </div>
             </SheetContent>
           </Sheet>
         </div>
-
       </div>
     </header>
   )

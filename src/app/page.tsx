@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Truck, Phone, Shield } from "lucide-react";
 import { getLatestProducts } from "@/lib/data/products";
 import { getCategoryLead } from "@/lib/data/products";
+import { createClient } from "@/lib/supabase/server";
 // import VapiWidget from "@/components/site/vapi-widget";
 
 function ProductCard({ href, title, price, compareAtPrice, image }: { href: string; title: string; price: string; compareAtPrice?: string; image?: string }) {
@@ -27,35 +28,66 @@ function ProductCard({ href, title, price, compareAtPrice, image }: { href: stri
 }
 
 async function CollectionTiles() {
-  const slugs = ["printed-lawn", "printed-winter", "embroidery-lawn", "embroidery-winter"] as const
-  const titles: Record<typeof slugs[number], string> = {
-    "printed-lawn": "Printed Lawn",
-    "printed-winter": "Printed Winter",
-    "embroidery-lawn": "Embroidery Lawn",
-    "embroidery-winter": "Embroidery Winter",
+  const supabase = createClient()
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name, slug, created_at, is_featured, position, featured_image_url, featured_image_id")
+    .order("is_featured", { ascending: false })
+    .order("position", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false })
+
+  const all = (categories || []).map((c: any) => ({ id: String(c.id), name: String(c.name), slug: String(c.slug), is_featured: !!c.is_featured, position: c.position as number | null, featured_image_url: c.featured_image_url as string | null, featured_image_id: c.featured_image_id as string | null }))
+
+  const lower = (s: string) => s.toLowerCase()
+  const isPrintedLawn = (n: string) => /printed/.test(lower(n)) && /lawn/.test(lower(n))
+  const isPrintedWinter = (n: string) => /printed/.test(lower(n)) && /winter/.test(lower(n))
+  const isEmbLawn = (n: string) => /embroi?d/.test(lower(n)) && /lawn/.test(lower(n))
+  const isEmbWinter = (n: string) => /embroi?d/.test(lower(n)) && /winter/.test(lower(n))
+  const isNew = (n: string) => /new\s*arrival/.test(lower(n))
+  const isSale = (n: string) => /sale/.test(lower(n))
+  const routeFor = (c: { name: string; slug: string }) => {
+    if (isPrintedLawn(c.name)) return "/printed/lawn"
+    if (isPrintedWinter(c.name)) return "/printed/winter"
+    if (isEmbLawn(c.name)) return "/embroidery/lawn"
+    if (isEmbWinter(c.name)) return "/embroidery/winter"
+    return `/category/${c.slug}`
   }
-  const hrefs: Record<typeof slugs[number], string> = {
-    "printed-lawn": "/printed/lawn",
-    "printed-winter": "/printed/winter",
-    "embroidery-lawn": "/embroidery/lawn",
-    "embroidery-winter": "/embroidery/winter",
+
+  // Exclude New Arrivals and Sale from homepage tiles
+  const filtered = all.filter(c => !isNew(c.name) && !isSale(c.name))
+  // Take first 4
+  const cats = filtered.slice(0, 4)
+
+  const leads = await Promise.all(cats.map((c) => getCategoryLead(c.slug)))
+  // Resolve featured_image_id URLs in one go
+  const imageIds = cats.map(c => c.featured_image_id).filter(Boolean) as string[]
+  let featuredById = new Map<string, string>()
+  if (imageIds.length) {
+    const { data: imgs } = await supabase
+      .from("product_images")
+      .select("id, url")
+      .in("id", imageIds)
+    for (const im of imgs || []) {
+      featuredById.set(String((im as any).id), String((im as any).url))
+    }
   }
-  const leads = await Promise.all(slugs.map((s) => getCategoryLead(s)))
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-4 md:gap-4">
-      {slugs.map((slug, i) => {
+      {cats.map((c, i) => {
         const lead: any = leads[i]
-        const image = lead?.image as string | undefined
+        let image =  c.featured_image_url || undefined
+        if (!image) image = (c.featured_image_id && featuredById.get(c.featured_image_id)) || undefined
+        if (!image) image = lead?.image as string | undefined
         return (
-          <Link key={slug} href={hrefs[slug]} className="group relative overflow-hidden rounded-lg border bg-white">
+          <Link key={c.id} href={routeFor(c)} className="group relative overflow-hidden rounded-lg border bg-white">
             {image ? (
-              <img src={image} alt={titles[slug]} className="aspect-[3/4] w-full object-contain bg-white" />
+              <img src={image} alt={c.name} className="aspect-[3/4] w-full object-contain bg-white" />
             ) : (
               <div className="aspect-[3/4] w-full bg-muted" />
             )}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-3">
-              <p className="text-sm font-medium text-white drop-shadow">{titles[slug]}</p>
+              <p className="text-sm font-medium text-white drop-shadow">{c.name}</p>
             </div>
           </Link>
         )
@@ -115,7 +147,7 @@ export default async function Home() {
           {products.map((p: any) => (
             <ProductCard
               key={p.id}
-              href={`/p/${p.id}`}
+              href={`/p/${p.slug}`}
               title={p.title}
               price={`${p.currency} ${Number(p.price).toLocaleString()}`}
               compareAtPrice={p.compare_at_price ? `${p.currency} ${Number(p.compare_at_price).toLocaleString()}` : undefined}

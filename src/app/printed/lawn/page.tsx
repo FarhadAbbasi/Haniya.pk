@@ -20,12 +20,15 @@ export default async function PrintedLawnPage({
       <CatalogFilters />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         {products.map((p) => (
-          <Link href={`/p/${p.id}`} key={p.id} className="overflow-hidden rounded-lg border bg-white">
+          <Link href={`/p/${(p as any).slug}`} key={p.id} className="relative overflow-hidden rounded-lg border bg-white">
             {(p as any).image ? (
               <img src={(p as any).image} alt={p.title} className="aspect-[3/4] w-full object-contain bg-white" />
             ) : (
               <div className="aspect-[3/4] w-full bg-muted" />
             )}
+            {(p as any).is_sale ? (
+              <div className="absolute left-2 top-2 rounded bg-red-600 px-2 py-0.5 text-xs font-semibold uppercase text-white shadow">Sale</div>
+            ) : null}
             <div className="p-3">
               <p className="text-sm font-medium">{p.title}</p>
               <p className="text-sm">

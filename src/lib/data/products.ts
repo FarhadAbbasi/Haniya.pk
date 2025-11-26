@@ -134,7 +134,7 @@ export async function getProductsByCategorySlug(
 
   let query = supabase
     .from("products")
-    .select("id, slug, title, price, compare_at_price, currency")
+    .select("id, slug, title, price, compare_at_price, currency, is_sale")
     .eq("category_id", cat.id)
     .order("created_at", { ascending: false })
 
@@ -170,7 +170,7 @@ export async function getProductsByCategorySlug(
     }
   }
 
-  return (filtered as DbProduct[]).map((p) => ({ ...p, image: byFirstImage.get(p.id) })) as Array<DbProduct & { image?: string }>
+  return (filtered as any[]).map((p: any) => ({ ...p, image: byFirstImage.get(p.id) })) as Array<DbProduct & { image?: string }>
 }
 
 export async function getProductBySlug(slug: string) {

@@ -232,7 +232,7 @@ export function PdpClient({
               <span className="text-xs font-medium uppercase tracking-wider text-neutral-800">Description</span>
               <span className="text-lg leading-none text-neutral-600 group-open:rotate-45 transition-transform">+</span>
             </summary>
-            <div className="mt-2 text-neutral-700">
+            <div className="mt-2 uppercase text-xs text-neutral-500 whitespace-pre-line">
               {description ? <p>{description}</p> : <p>Premium quality with modern fit and finishing.</p>}
             </div>
           </details>
@@ -242,9 +242,9 @@ export function PdpClient({
               <span className="text-xs font-medium uppercase tracking-wider text-neutral-800">Delivery Info</span>
               <span className="text-lg leading-none text-neutral-600 group-open:rotate-45 transition-transform">+</span>
             </summary>
-            <div className="mt-2 text-neutral-700">
+            <div className="mt-2  text-neutral-500">
               <p>Standard delivery within 3–7 business days nationwide.</p>
-              <p className="mt-1">Cash on Delivery available.</p>
+              <p className="mt-">Cash on Delivery available.</p>
             </div>
           </details>
 
@@ -253,7 +253,7 @@ export function PdpClient({
               <span className="text-xs font-medium uppercase tracking-wider text-neutral-800">Exchange Policy</span>
               <span className="text-lg leading-none text-neutral-600 group-open:rotate-45 transition-transform">+</span>
             </summary>
-            <div className="mt-2 text-neutral-700">
+            <div className="mt-2 text-neutral-500">
               <p>Easy 7-day exchange on unworn items with tags attached.</p>
             </div>
           </details>

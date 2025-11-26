@@ -2,7 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { AdminMobileNav } from "@/components/admin/admin-mobile-nav"
-import { BarChart3, FileText, LayoutDashboard, Package, Settings as SettingsIcon, ShoppingCart, Tags } from "lucide-react"
+import { BarChart3, FileText, LayoutDashboard, Package, Settings as SettingsIcon, ShoppingCart, Tags, Bell } from "lucide-react"
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -57,6 +57,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Link href="/admin/content" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
                 <FileText className="h-4 w-4" />
                 <span>Content</span>
+              </Link>
+              <Link href="/admin/notifications" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <Bell className="h-4 w-4" />
+                <span>Notifications</span>
               </Link>
               <Link href="/admin/settings" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
                 <SettingsIcon className="h-4 w-4" />

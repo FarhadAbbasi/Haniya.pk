@@ -141,3 +141,18 @@ create table if not exists reviews (
   created_at timestamptz not null default now()
 );
 create index if not exists reviews_product_idx on reviews(product_id);
+
+-- Storage policies --
+create policy "auth can insert product images"
+on storage.objects for insert
+to authenticated
+with check (
+  bucket_id = 'product-images'
+  and (storage.foldername(name))[1] = 'product'
+);
+
+create policy "public can read product images"
+on storage.objects for select
+to anon, authenticated
+using (bucket_id = 'product-images');
+

@@ -34,6 +34,16 @@ export async function POST(req: Request) {
     const { error } = await supabase.from("categories").insert({ name, slug })
     if (error) return jsonWithCookies(res, { error: error.message }, { status: 500 })
 
+    // If this was a form post, redirect back to admin/categories; otherwise JSON
+    const ctype = req.headers.get("content-type") || ""
+    if (ctype.includes("application/x-www-form-urlencoded") || ctype.includes("multipart/form-data")) {
+      const reqUrl = new URL(req.url)
+      const back = new URL("/admin/categories", reqUrl.origin)
+      const redirectRes = NextResponse.redirect(back)
+      const setCookies = res.headers.getSetCookie?.() || []
+      for (const c of setCookies) redirectRes.headers.append("Set-Cookie", c)
+      return redirectRes
+    }
     return jsonWithCookies(res, { ok: true })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "unexpected" }, { status: 500 })
