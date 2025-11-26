@@ -96,6 +96,9 @@ async function CollectionTiles() {
   )
 }
 
+// Rebuild this page at most once every 60s (ISR)
+export const revalidate = 60
+
 export default async function Home() {
   const products = await getLatestProducts(4)
 

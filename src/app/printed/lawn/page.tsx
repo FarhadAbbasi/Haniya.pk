@@ -1,7 +1,7 @@
-export const dynamic = "force-dynamic"
 import { CatalogFilters } from "@/components/catalog/filters"
 import { getProductsByCategorySlug } from "@/lib/data/products"
 import Link from "next/link"
+export const revalidate = 60
 
 export default async function PrintedLawnPage({
   searchParams,

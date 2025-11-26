@@ -1,6 +1,7 @@
 import { getNewProducts } from "@/lib/data/products"
 import { CatalogFilters } from "@/components/catalog/filters"
 import Link from "next/link"
+export const revalidate = 60
 
 export default async function NewArrivalsPage({
   searchParams,

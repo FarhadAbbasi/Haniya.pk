@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"
+export const revalidate = 60
 import { PdpClient } from "@/components/product/pdp-client"
 import { RelatedProducts } from "@/components/product/related-products"
 import { RecentlyViewed } from "@/components/product/recently-viewed"

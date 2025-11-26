@@ -1,6 +1,7 @@
 import { CatalogFilters } from "@/components/catalog/filters"
 import { getSaleProducts } from "@/lib/data/products"
 import Link from "next/link"
+export const revalidate = 60
 
 export default async function SalePage({
   searchParams,

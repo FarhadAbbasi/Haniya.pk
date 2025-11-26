@@ -91,3 +91,16 @@ Ensure that the user interface is intuitive for the target audience. While sophi
 Localize payment options (COD + JazzCash/Easypaisa) and shipping for Pakistan, with the option for international shipping in the future.
 
 Be mindful of mobile and low-bandwidth users in Pakistan; ensure that the website is optimized for 3G/4G speeds.
+
+## Current Status (Nov 2025)
+
+- Public catalog pages (Home, Category, Printed, Embroidery, New, Sale, PDP) now use ISR (static with background refresh) for faster loads on Vercel/Netlify CDNs. Loading skeletons added for better perceived speed.
+- Push notifications, PWA manifest, and basic offline caching are implemented.
+- Admin categories management improved; notifications admin added.
+
+### Next Steps (Performance & Features)
+- Monitor page timing post-ISR deployment; tighten revalidate or expand caching if needed.
+- Add DB indexes (categories.slug, products(category_id, created_at), product_images(product_id, sort)) — applied.
+- Integrate payments (JazzCash/Easypaisa) and shipping APIs (TCS/Leopards/BlueEx).
+- Build orders/inventory management and analytics in Admin.
+- Add GA4 + Facebook/Instagram Pixel and SEO structured data.
