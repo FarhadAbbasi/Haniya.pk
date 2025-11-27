@@ -48,7 +48,7 @@ export default async function Header() {
   return (
     <header className="w-full border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-4">
-        <Link href="/" className="h-24 w-24 rounded rounded-xl inline-flex items-center justify-center" aria-label="HANIYA.PK">
+        <Link href="/" className="h-24 w-24 rounde rounded-xl inline-flex items-center justify-center" aria-label="HANIYA.PK">
           <Image src="/logo.png" alt="HANIYA.PK" width={80} height={80} className="h-24 w-24 object-contain" priority />
           {/* <Image src="/logo.jpg" alt="HANIYA.PK" width={80} height={80} className="h-24 w-24  object-contain" priority /> */}
         </Link>

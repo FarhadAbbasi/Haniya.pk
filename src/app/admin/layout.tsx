@@ -38,13 +38,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Dashboard</span>
               </Link>
-              <Link href="/admin/orders" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
-                <ShoppingCart className="h-4 w-4" />
-                <span>Orders</span>
-              </Link>
               <Link href="/admin/analytics" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
                 <BarChart3 className="h-4 w-4" />
                 <span>Analytics</span>
+              </Link>
+              <Link href="/admin/orders" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
+                <ShoppingCart className="h-4 w-4" />
+                <span>Orders</span>
               </Link>
               <Link href="/admin/products" className="flex items-center gap-2 rounded-md px-3 py-2 text-neutral-700 hover:bg-neutral-100">
                 <Package className="h-4 w-4" />

@@ -17,6 +17,10 @@ export default function MarketingWelcomeModal() {
     // Only show on homepage
     if (pathname !== "/") return
     try {
+      // If Notifications are supported and not granted, don't show newsletter to avoid overlapping prompts
+      if (typeof window !== "undefined" && "Notification" in window) {
+        if (Notification.permission !== "granted") return
+      }
       // If user already subscribed, suppress
       const subscribed = localStorage.getItem("newsletter_subscribed")
       if (subscribed === "1" || document.cookie.includes("newsletter_subscribed=1")) return

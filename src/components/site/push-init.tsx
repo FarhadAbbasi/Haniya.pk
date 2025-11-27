@@ -7,6 +7,16 @@ export default function PushInit() {
     async function ensure() {
       try {
         if (typeof window === "undefined") return
+        // In development, ensure no SW is active and skip registration to avoid dev caching/hydration issues
+        if (process.env.NODE_ENV !== "production") {
+          if ("serviceWorker" in navigator) {
+            try {
+              const regs = await navigator.serviceWorker.getRegistrations()
+              await Promise.all(regs.map((r) => r.unregister()))
+            } catch (_) {}
+          }
+          return
+        }
         if (typeof Notification === "undefined") return
         if (Notification.permission !== "granted") return
         if (!("serviceWorker" in navigator) || !("PushManager" in window)) return

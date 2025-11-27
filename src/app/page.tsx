@@ -120,12 +120,12 @@ export default async function Home() {
         <div className="items-end justify-start min-h-[60dvh] mx-auto flex w-full max-w-7xl items-center px-4 py-12 md:py-16">
           <div className="align-center justify-between min-h-[50dvh] flex flex-col max-w-2xl space-y-5 md:space-y-5">
             <p className="text-xs uppercase tracking-[0.2em] text-foreground/80">New Season</p>
-            <h1 className="hidden md:block text-balance text-3xl font-semibold leading-tight tracking-tight md:text-5xl">
+            <h1 className="hidden md:block text-balance text-3xl font-semibold leading-tight tracking-tight md:text-5xl  text-foreground/80">
               Luxury Lawn & Winter Collections
 
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/20 to-transparent" />
             </h1>
-            <p className="max-w-prose hidden md:block text-sm md:text-base text-foreground/80">
+            <p className="max-w-prose hidden md:block text-sm md:text-base text-foreground/70">
               Timeless designs with modern silhouettes. Crafted in premium fabrics for comfort in every season.
             </p>
             <div className="flex flex-wrap gap-3">
