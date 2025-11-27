@@ -10,12 +10,12 @@ function ProductCard({ href, title, price, compareAtPrice, image }: { href: stri
   return (
     <Link href={href} className="group overflow-hidden rounded-lg border bg-white">
       {image ? (
-        <img src={image} alt={title} className="aspect-[3/4] w-full object-contain bg-white transition-transform duration-300 ease-out group-hover:scale-105" />
+        <img src={image} alt={title} className="aspect-[3/4] w-full object-cover bg-white transition-transform duration-1000 ease-out group-hover:scale-105" />
       ) : (
-        <div className="aspect-[3/4] w-full bg-gradient-to-b from-muted to-muted/60" />
+        <div className="aspect-[4/5] w-full bg-gradient-to-b from-muted to-muted/60" />
       )}
       <div className="p-3">
-        <p className="text-sm font-medium">{title}</p>
+        <p className="text-sm uppercase tracking-[0.1em] font-medium drop-shado"> {title} </p>
         <p className="text-sm">
           {compareAtPrice ? (
             <span className="mr-2 text-muted-foreground line-through">{compareAtPrice}</span>
@@ -81,13 +81,13 @@ async function CollectionTiles() {
         return (
           <Link key={c.id} href={routeFor(c)} className="group relative overflow-hidden rounded-lg border bg-white">
             {image ? (
-              <img src={image} alt={c.name} className="aspect-[3/4] w-full object-contain bg-white transition-transform duration-300 ease-out group-hover:scale-105" />
+              <img src={image} alt={c.name} className="aspect-[2/3] w-full object-cover bg-white transition-transform duration-1200 ease-out group-hover:scale-105" />
             ) : (
-              <div className="aspect-[3/4] w-full bg-muted" />
+              <div className="aspect-[4/5] w-full bg-muted" />
             )}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-3">
-              <p className="text-sm font-medium text-white drop-shadow">{c.name}</p>
+              <p className="text-sm uppercase tracking-[0.2em] font-medium text-white drop-shadow">{c.name}</p>
             </div>
           </Link>
         )
@@ -188,6 +188,31 @@ export default async function Home() {
               <p className="font-medium">Need help?</p>
               <p className="opacity-90">WhatsApp: 0092 317-2956790</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Styled By You (coming soon) */}
+      <section className="relative isolate w-full">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/90 via-primary/70 to-primary/40" />
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 md:py-12">
+          <div className="text-center text-white">
+            <div className="mb-2 text-[11px] uppercase tracking-[0.28em] opacity-80">Community</div>
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Styled By You</h2>
+            <p className="mt-3 text-white/70">Real looks from our customers — share your fit and get featured.</p>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+            <div className="h-28 rounded-lg bg-white/10 backdrop-blur-sm" />
+            <div className="h-28 rounded-lg bg-white/10 backdrop-blur-sm" />
+            <div className="h-28 rounded-lg bg-white/10 backdrop-blur-sm" />
+            <div className="h-28 rounded-lg bg-white/10 backdrop-blur-sm" />
+            <div className="h-28 rounded-lg bg-white/10 backdrop-blur-sm" />
+            <div className="h-28 rounded-lg bg-white/10 backdrop-blur-sm" />
+          </div>
+          <div className="mt-10 text-center">
+            <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-gray-900/90 ring-1 ring-inset ring-gray-900/50">
+              coming soon…
+            </span>
           </div>
         </div>
       </section>

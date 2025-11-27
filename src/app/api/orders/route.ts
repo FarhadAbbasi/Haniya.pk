@@ -11,6 +11,7 @@ export async function POST(req: Request) {
       address, // { name, phone, email, city, line1 }
       shipping, // { cost, currency }
       currency = "PKR",
+      provider = "cod",
     } = body || {}
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -123,14 +124,14 @@ export async function POST(req: Request) {
       }
     } catch {}
 
-    // Create a payment row for COD (initiated)
+    // Create a payment row for selected provider (initiated)
     const { error: payErr } = await supabase.from("payments").insert({
       order_id: order.id,
-      provider: "cod",
+      provider,
       amount: orderTotal,
       currency,
       status: "initiated",
-      reference: `COD-${address.phone}`,
+      reference: provider === "cod" ? `COD-${address.phone}` : `EP-${address.phone}`,
     })
     if (payErr) {
       return NextResponse.json({ error: payErr.message }, { status: 500 })

@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="w-full border-t bg-slate-100">
           {/* AI VOICE Assistant - Widget */}
           {/* <VapiWidget /> */}
-      <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 py-12 md:py-24">
         <div className="grid grid-cols-1 gap-10 text-sm text-foreground/60 md:grid-cols-4">
           <div>
             <h3 className="mb-4 text-base font-semibold tracking-tight">NEED HELP?</h3>
@@ -55,7 +55,7 @@ export default function Footer() {
           </div>
           <div>
             <h3 className="mb-4 text-base font-semibold tracking-tight">NEWSLETTER</h3>
-            <p className="mb-2 text-sm text-foreground/60">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
+            <p className="mb-2  text-sm text-foreground/60">Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
             <form method="post" action="/api/marketing/subscribe" className="flex flex-col gap-2">
               <input
                 type="email"

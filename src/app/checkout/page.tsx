@@ -106,16 +106,33 @@ export default function CheckoutPage() {
     } else {
       try {
         setPlacing(true)
+        // Create order with provider easypaisa
+        const or = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: cart.items.map((i) => ({ id: i.id, title: i.title, qty: i.qty, price: i.price, image: i.image, variant: i.variant })),
+            address,
+            shipping,
+            currency: "PKR",
+            provider: "easypaisa",
+          }),
+        })
+        const oj = await or.json()
+        if (!or.ok) throw new Error(oj?.error || "Could not create order")
+        const oid = oj.id as string
+        setOrderId(oid)
+
         const res = await initEasypaisaPayment({
           amount: total,
-          orderId: `order_${Date.now()}`,
+          orderId: oid,
           customerPhone: address.phone,
           returnUrl: "/checkout",
           callbackUrl: "/api/payments/easypaisa/callback",
         })
         window.location.href = res.redirectUrl
-      } catch (e) {
-        toast.error("Easypaisa init failed")
+      } catch (e: any) {
+        toast.error(e?.message || "Easypaisa init failed")
       } finally {
         setPlacing(false)
       }
