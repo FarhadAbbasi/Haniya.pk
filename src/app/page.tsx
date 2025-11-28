@@ -111,7 +111,9 @@ export default async function Home() {
         {/* Optional background image (place /public/hero.jpg to activate) */}
         <div
           className="absolute inset-0 -z-10 bg-cover bg-no-repeat bg-top md:hidden"
-          style={{ backgroundImage: "url('/Hero-Mob.jpg')" }}
+          // style={{ backgroundImage: "url('/Hero-Mob.jpg')" }}
+          // style={{ backgroundImage: "url('/Hero-Mob1.jpg')" }}
+          style={{ backgroundImage: "url('/Hero-Mob1.png')" }}
         />
         <div
           className="absolute inset-0 -z-10 hidden md:block bg-cover bg-no-repeat bg-cover"
